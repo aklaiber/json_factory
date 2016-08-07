@@ -32,4 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'json-schema'
+  spec.add_development_dependency 'colorize'
+  spec.add_development_dependency 'jbuilder'
+  spec.add_development_dependency 'forgery'
 end
