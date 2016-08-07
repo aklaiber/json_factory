@@ -1,0 +1,23 @@
+AllCops:
+  TargetRubyVersion: 2.3
+
+Style/Documentation:
+  Enabled: false
+
+Style/MethodMissing:
+  Exclude:
+      - lib/json_factory/json_builder.rb
+
+Metrics/LineLength:
+  Max: 140
+  Exclude:
+    - spec/**/*
+
+Metrics/MethodLength:
+  Max: 20
+
+Lint/ShadowingOuterLocalVariable:
+  Exclude:
+    - spec/**/*
+
+
