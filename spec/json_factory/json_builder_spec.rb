@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'spec_helper'
 
 describe JSONFactory::JSONBuilder do
@@ -38,7 +39,7 @@ describe JSONFactory::JSONBuilder do
     end
   end
 
-  describe 'json_factory files' do
+  describe '.load_factory' do
     let(:factory) do
       <<-JBUILDER
         json.meta nil
@@ -57,10 +58,58 @@ describe JSONFactory::JSONBuilder do
         end
       JBUILDER
     end
-    subject { JSONFactory::JSONBuilder.new(factory, test_objects: [test_object_1, test_object_2]) }
+
+    subject { JSONFactory::JSONBuilder.load_factory(build_factory_file(factory), test_objects: [test_object_1, test_object_2]) }
 
     it 'builds json' do
       expect(subject.build).to match_response_schema('object_schema.json')
+    end
+  end
+
+  describe 'partial' do
+    let(:partial) do
+      <<-JBUILDER
+        json.data do |json|
+          json.id context.id
+
+          json.test_object do |json|
+            json.id 'test object id'
+            json.name 'test name'
+          end
+
+          json.test_array context.test_objects do |json, test_object|
+            json.name test_object.name
+            json.description test_object.description
+          end
+        end
+      JBUILDER
+    end
+
+    context 'with string' do
+      it 'builds json' do
+        subject.add_to_comtext(:test_objects, [test_object_1, test_object_2])
+        subject.schema do |json|
+          json.meta nil
+          json.partial! partial, id: 'id 1', test_objects: [test_object_1, test_object_2]
+        end
+
+        expect(subject.build).to match_response_schema('object_schema.json')
+      end
+    end
+
+    context 'with file path' do
+      let(:factory) do
+        <<-JBUILDER
+          json.meta nil
+          json.partial! '#{build_factory_file(partial)}', id: 'id 1', test_objects: context.test_objects
+        JBUILDER
+      end
+
+      subject { JSONFactory::JSONBuilder.new(factory, test_objects: [test_object_1, test_object_2]) }
+
+      it 'builds json' do
+        expect(subject.build).to match_response_schema('object_schema.json')
+      end
     end
   end
 end

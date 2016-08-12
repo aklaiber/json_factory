@@ -7,6 +7,10 @@ module JSONFactory
       @objects = objects
     end
 
+    def add(key, value)
+      @objects[key] = value
+    end
+
     def method_missing(method_name, *arguments, &block)
       return objects[method_name] if objects.key?(method_name)
       super

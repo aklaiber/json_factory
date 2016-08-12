@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module JSONFactory
   class JSONBuilder
     attr_reader :attributes, :context
@@ -13,6 +14,15 @@ module JSONFactory
       end
     end
 
+    def self.load_factory(path, context_objects = {})
+      raise "jfactory file #{path} not found" unless File.exist?(path)
+      new(File.open(path).read, context_objects)
+    end
+
+    def add_to_comtext(key, value)
+      @context.add(key, value)
+    end
+
     def schema(object = nil, &block)
       return self unless block_given?
       if object
@@ -25,6 +35,14 @@ module JSONFactory
         yield self
       end
       self
+    end
+
+    def partial!(factory, context_objects = {})
+      if File.exist?(factory)
+        attributes.merge!(self.class.load_factory(factory, context_objects).attributes)
+      else
+        attributes.merge!(self.class.new(factory, context_objects).attributes)
+      end
     end
 
     def collection(collection, &block)
