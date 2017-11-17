@@ -33,7 +33,7 @@ oj_json = ''
 json_factory_json = ''
 jbuilder_json = ''
 
-Benchmark.bm(15) do |x|
+Benchmark.bmbm(15) do |x|
   x.report(:oj) do
     oj_json = Oj.dump(
       objects.map do |entry|

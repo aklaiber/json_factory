@@ -2,25 +2,34 @@
 
 module JSONFactory
   class JSONBuilder
-    attr_reader :attributes, :context
+    attr_reader :attributes, :factory
+    attr_accessor :context
 
-    def initialize(factory = nil, context_objects = {})
+    @@partials = {}
+
+    def initialize(factory = nil, data = {})
       @attributes = {}
-      @context = Context.new(context_objects)
+      @factory = factory
+      @context = Context.new(data)
 
-      return unless factory
+      init_factory if factory && !data.empty?
+    end
+
+    def init_factory
       schema do |json|
         json.instance_eval(factory)
       end
     end
 
-    def self.load_factory(path, context_objects = {})
-      raise "jfactory file #{path} not found" unless File.exist?(path)
-      new(File.open(path).read, context_objects)
+    def self.load_factory_file(path, data = {})
+      fail "file format is invalid. #{path}" unless File.extname(path).eql?('.jfactory')
+      fail "jfactory file #{path} not found" unless File.exist?(path)
+      new(File.open(path).read, data)
     end
 
-    def add_to_comtext(key, value)
-      @context.add(key, value)
+    def data=(data)
+      @context.data = data
+      init_factory
     end
 
     def schema(object = nil, &block)
@@ -37,16 +46,14 @@ module JSONFactory
       self
     end
 
-    def partial!(factory, context_objects = {})
-      if File.exist?(factory)
-        attributes.merge!(self.class.load_factory(factory, context_objects).attributes)
+    def partial!(factory, data = {})
+      if factory.include?('.jfactory')
+        @@partials[factory] ||= self.class.load_factory_file(factory)
+        @@partials[factory].data = data
+        attributes.merge!(@@partials[factory].attributes)
       else
-        attributes.merge!(self.class.new(factory, context_objects).attributes)
+        attributes.merge!(self.class.new(factory, data).attributes)
       end
-    end
-
-    def collection(collection, &block)
-      @attributes = collection.map { |object| self.class.new.schema(object, &block).attributes }
     end
 
     def method_missing(method_name, *arguments, &block)
@@ -56,10 +63,15 @@ module JSONFactory
     end
 
     def build
+      init_factory if attributes.empty?
       Oj.dump(attributes)
     end
 
     private
+
+    def collection(collection, &block)
+      @attributes = collection.map { |object| self.class.new.schema(object, &block).attributes }
+    end
 
     def set_value(key, value)
       @attributes[key] = value
