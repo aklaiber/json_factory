@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'jbuilder'
 require 'benchmark'
 require 'forgery'
@@ -9,7 +11,7 @@ sub_array = []
 
 10.times do
   sub_array << OpenStruct.new(
-    id: rand(1000000000),
+    id: rand(1_000_000_000),
     name: 'TestObject1',
     description: 'Test1',
     test_array: sub_array
@@ -31,4 +33,3 @@ Benchmark.bmbm(15) do |x|
     JSONFactory::JSONBuilder.load_factory_file('fixtures/test.jfactory', objects).build
   end
 end
-

@@ -2,15 +2,19 @@
 
 module JSONFactory
   class JSONBuilder
-    attr_reader :attributes, :factory
+    attr_reader :attributes, :factory, :cache
     attr_accessor :context
 
     @@partials = {}
+
+    @json = nil
+    @cache_key = nil
 
     def initialize(factory = nil, data = {})
       @attributes = {}
       @factory = factory
       @context = Context.new(data)
+      @cache = Cache.new
 
       init_factory if factory && !data.empty?
     end
@@ -22,8 +26,8 @@ module JSONFactory
     end
 
     def self.load_factory_file(path, data = {})
-      fail "file format is invalid. #{path}" unless File.extname(path).eql?('.jfactory')
-      fail "jfactory file #{path} not found" unless File.exist?(path)
+      raise "file format is invalid. #{path}" unless File.extname(path).eql?('.jfactory')
+      raise "jfactory file #{path} not found" unless File.exist?(path)
       new(File.open(path).read, data)
     end
 
@@ -46,6 +50,12 @@ module JSONFactory
       self
     end
 
+    def cache!(key)
+      @cache_key = key
+      @json = @cache.read(@cache_key) if @cache_key && @cache
+      yield self
+    end
+
     def partial!(factory, data = {})
       if factory.include?('.jfactory')
         @@partials[factory] ||= self.class.load_factory_file(factory)
@@ -63,11 +73,19 @@ module JSONFactory
     end
 
     def build
-      init_factory if attributes.empty?
-      Oj.dump(attributes)
+      @json = perform_builder if @json.nil?
+
+      @cache.write(@cache_key, @json) if @cache_key && @cache
+
+      @json
     end
 
     private
+
+    def perform_builder
+      init_factory if attributes.empty?
+      Oj.dump(attributes)
+    end
 
     def collection(collection, &block)
       @attributes = collection.map { |object| self.class.new.schema(object, &block).attributes }

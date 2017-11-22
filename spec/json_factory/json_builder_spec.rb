@@ -37,15 +37,15 @@ describe JSONFactory::JSONBuilder do
       let(:factory) do
         <<-RUBY
           json.meta nil
-  
+
           json.data do |json|
             json.id 'id 1'
-  
+
             json.test_object do |json|
               json.id 'test object id'
               json.name 'test name'
             end
-  
+
             json.test_array context.test_objects do |json, test_object|
               json.name test_object.name
               json.description test_object.description
@@ -58,18 +58,6 @@ describe JSONFactory::JSONBuilder do
 
       it 'builds json' do
         expect(subject.build).to match_response_schema('object_schema.json')
-      end
-    end
-
-    xcontext 'with invalid factory' do
-      let(:factory) do
-        <<-RUBY
-        RUBY
-      end
-
-      subject { JSONFactory::JSONBuilder.new(factory) }
-
-      it 'builds json' do
       end
     end
   end
@@ -168,6 +156,34 @@ describe JSONFactory::JSONBuilder do
 
     it 'builds json' do
       expect(subject.build).to eql('{"id":"test-id"}')
+    end
+  end
+
+  describe '#cache!' do
+    let(:store) { ActiveSupport::Cache::MemoryStore.new }
+    let(:json_builder) { JSONFactory::JSONBuilder.new }
+
+    before do
+      subject.cache.store = store
+      subject.schema do |json|
+        json.cache! 'test-cache-key' do
+          json.id 'id 1'
+        end
+      end
+      subject.build
+    end
+
+    before do
+      json_builder.cache.store = store
+      json_builder.schema do |json|
+        json.cache! 'test-cache-key' do
+          json.id 'id 1'
+        end
+      end
+    end
+
+    it 'returns cached json' do
+      expect(json_builder).to_not receive(:perform_builder).and_call_original
     end
   end
 end

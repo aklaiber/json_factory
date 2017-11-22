@@ -6,7 +6,11 @@ Style/Documentation:
 
 Style/MethodMissing:
   Exclude:
-      - lib/json_factory/json_builder.rb
+    - lib/json_factory/json_builder.rb
+
+Style/ClassVars:
+  Exclude:
+    - lib/json_factory/json_builder.rb
 
 Metrics/LineLength:
   Max: 140
@@ -15,6 +19,11 @@ Metrics/LineLength:
 
 Metrics/MethodLength:
   Max: 20
+
+Metrics/BlockLength:
+  Exclude:
+    - spec/**/*
+    - examples/**/*
 
 Lint/ShadowingOuterLocalVariable:
   Exclude:

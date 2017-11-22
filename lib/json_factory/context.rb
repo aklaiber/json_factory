@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module JSONFactory
   class Context
     attr_accessor :data
