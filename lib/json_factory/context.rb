@@ -2,9 +2,7 @@
 
 module JSONFactory
   class Context
-    attr_accessor :data
-
-    def initialize(data)
+    def initialize(data = nil)
       @data = data
     end
 
@@ -13,12 +11,12 @@ module JSONFactory
     end
 
     def method_missing(method_name, *arguments, &block)
-      return data[method_name] if data.key?(method_name)
+      return @data[method_name] if @data.is_a?(Hash) && @data.key?(method_name)
       super
     end
 
     def respond_to_missing?(method_name, include_private = false)
-      data.key?(method_name) || super
+      (@data.is_a?(Hash) && @data.key?(method_name)) || super
     end
   end
 end

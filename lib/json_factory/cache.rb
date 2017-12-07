@@ -2,6 +2,8 @@
 
 module JSONFactory
   class Cache
+    include Singleton
+
     attr_accessor :prefix
 
     def initialize

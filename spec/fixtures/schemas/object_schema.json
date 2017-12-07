@@ -1,5 +1,5 @@
 {
-  "type": "object",
+  "type":       "object",
   "properties": {
     "meta": {
       "type": "null"
@@ -7,20 +7,23 @@
     "data": {
       "type":       "object",
       "properties": {
-        "id": {"type": "string"},
+        "id":          { "type": "string" },
         "test_object": {
           "type":       "object",
           "properties": {
-            "id":   {"type": "string"},
-            "name": {"type": "string"}
+            "test":       { "type": "string" },
+            "id":         { "type": "string" },
+            "name":       { "type": "string" },
+            "sub_object": { "type": "null" }
           }
         },
+        "test_null":   { "type": "null" },
         "test_array":  {
           "type":  "array",
           "items": {
             "type":       "object",
             "properties": {
-              "name": { "type": "string" },
+              "name":        { "type": "string" },
               "description": { "type": "string" }
             }
           }

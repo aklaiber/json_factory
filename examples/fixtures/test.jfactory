@@ -1,9 +1,8 @@
-json.schema context.data do |json, test_object|
-  json.id test_object.id
-  json.name test_object.name
-  json.description test_object.description
-
-  json.test_array test_object.test_array do |json, test_sub_object|
-    json.partial! 'fixtures/_test_partial.jfactory', id: test_sub_object.id
+json.array! objects do |json, test_object|
+  json.member!(:id, test_object.id)
+  json.member!(:name, test_object.name)
+  json.member!(:description, test_object.description)
+  json.array!(test_object.test_array, :test_array) do |json, test_sub_object|
+    json.partial! 'fixtures/test_partial', id: test_sub_object.id
   end
 end
