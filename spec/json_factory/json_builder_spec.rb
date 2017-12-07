@@ -56,10 +56,10 @@ describe JSONFactory::JSONBuilder do
 
       let(:context) { JSONFactory::Context.new(object: test_object) }
   
-      subject { JSONFactory::JSONBuilder.new(factory) }
+      subject { JSONFactory::JSONBuilder.new(factory, context) }
   
       it 'builds json' do
-        expect(subject.build(context)).to match_response_schema('object_schema.json')
+        expect(subject.build).to match_response_schema('object_schema.json')
       end
     end
   end
@@ -78,10 +78,10 @@ describe JSONFactory::JSONBuilder do
 
       let(:context) { JSONFactory::Context.new(objects: [test_object_1, test_object_2]) }
 
-      subject { JSONFactory::JSONBuilder.new(factory) }
+      subject { JSONFactory::JSONBuilder.new(factory, context) }
 
       it 'builds json' do
-        expect(subject.build(context)).to match_response_schema('top_level_array_schema.json')
+        expect(subject.build).to match_response_schema('top_level_array_schema.json')
       end
     end
   end

@@ -5,22 +5,23 @@ module JSONFactory
     attr_accessor :output
     attr_reader :stream, :factory, :cache
 
-    def self.load_factory_file(path)
+    def self.load_factory_file(path, context = nil)
       raise "file format is invalid. #{path}" unless File.extname(path).eql?('.jfactory')
       raise "jfactory file #{path} not found" unless File.exist?(path)
-      new(File.open(path).read)
+      new(File.open(path).read, context)
     end
 
-    def initialize(factory)
+    def initialize(factory, context = nil)
       @factory = factory
       @cache = Cache.instance
+      @context = context
     end
 
-    def build(context = nil)
+    def build
       @output  =  StringIO.new
       @stream  = Oj::StreamWriter.new(@output, indent: 0)
 
-      JSONObject.new(self, context).schema! { |json|
+      JSONObject.new(self, @context).schema! { |json|
         json.instance_eval(@factory)
       }
 
