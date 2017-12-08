@@ -1,9 +1,8 @@
 [![Build Status](https://travis-ci.org/aklaiber/json_factory.svg?branch=master)](https://travis-ci.org/aklaiber/json_factory)
+
 # JsonFactory
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/json_factory`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+JsonFactory is a Easy DSL to create JSON structures with the development focus on performance. 
 
 ## Installation
 
@@ -23,18 +22,158 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+| DSL Method    | Description                      | 
+| ------------- |:-------------------------------- |  
+| json.object!  | Create a json object             |   
+| json.array!   | Create a json array              | 
+| json.member!  | Create key value pair            |
+| json.null!    | Set object to "null"             |   
+| json.partial! | Load sub jfactory file           |
+| json.cache!   | Read and write from cache stores |
+
+##### Top level object  JSON structure
+
+```ruby
+factory = <<-RUBY
+  json.object! do |json|
+    json.object!(:data) do |json|
+      json.member!(:id, object.id)
+      json.member!(:name, object.name)
+
+      json.array!(object.test_objects, :test_array) do |json, test_object|
+        json.member!(:id, test_object.id)
+        json.member!(:name, test_object.name)
+      end
+    end
+  end
+RUBY
+
+# test data 
+test_object_1 = OpenStruct.new(id: '001', name: 'TestObject2')
+test_object_2 = OpenStruct.new(id: '002', name: 'TestObject3')
+test_object = OpenStruct.new(id: '1', name: 'TestObject1', test_objects: [test_object_1, test_object_2])
+
+# create context object
+context = JSONFactory::Context.new(object: test_object)
+
+puts JSONFactory::JSONBuilder.new(factory, context).build
+```
+
+```json
+{
+  "data": {
+    "id": "1",
+    "name": "TestObject1",
+    "test_array": [
+      { "id": "001", "name": "TestObject2" },
+      { "id": "002", "name": "TestObject3" }
+    ]
+  }
+}
+```
+
+##### Top level array JSON structure
+
+```ruby
+factory = <<-RUBY
+  json.array! objects do |json, test_object|
+    json.member!(:id, test_object.id)
+    json.member!(:name, test_object.name)
+  end
+RUBY
+
+# test data 
+test_object_1 = OpenStruct.new(id: '001', name: 'TestObject2')
+test_object_2 = OpenStruct.new(id: '002', name: 'TestObject3')
+
+# create context object
+context = JSONFactory::Context.new(objects: [test_object_1, test_object_2])
+
+puts JSONFactory::JSONBuilder.new(factory, context).build
+```
+
+```json
+[
+  { "id": "001", "name": "TestObject2" },
+  { "id": "002", "name": "TestObject3" }
+]
+```
+
+##### Load jfactory files
+
+```ruby
+# tmp/test.jfactory
+json.member!(:id, test_object.id)
+json.member!(:name, test_object.name)
+``` 
+
+```ruby
+# test data
+test_object = OpenStruct.new(id: '1', name: 'TestObject1')
+
+# create context object
+context = JSONFactory::Context.new(object: test_object)
+
+puts JSONFactory::JSONBuilder.load_factory_file('tmp/test.jfactory', context).build # => { "id": 1, name: "TestObject1" }
+```        
+
+##### Load partials 
+
+```ruby
+# tmp/_test_partial.jfactory
+json.member!(:id, test_object.id)
+json.member!(:name, test_object.name)
+```  
+
+```ruby
+# tmp/test.jfactory
+json.object! do |json|
+  json.partial!('tmp/test_partial', test_object: object)
+end
+``` 
+
+```ruby
+# test data
+test_object = OpenStruct.new(id: '1', name: 'TestObject1')
+
+# create context object
+context = JSONFactory::Context.new(object: test_object)
+
+puts JSONFactory::JSONBuilder.load_factory_file('tmp/test.jfactory', context).build # => { "id": 1, name: "TestObject1" }
+```  
+
+##### Use cache stores
+
+```ruby
+factory = <<-RUBY
+  json.object! do |json|
+    json.object!(:data) do |json|
+      json.cache! 'test-cache-key' do |json|
+        json.member!(:id, object.id)
+        json.member!(:name, object.name)
+      end
+    end
+  end
+RUBY
+
+# test data 
+test_object = OpenStruct.new(id: '1', name: 'TestObject1')
+
+# create context object
+context = JSONFactory::Context.new(object: test_object)
+
+builder = JSONFactory::JSONBuilder.new(factory, context)
+builder.cache.store = ActiveSupport::Cache::MemoryStore.new
+puts builder.build # => { "data": { "id": "1", "name": "TestObject1" } }
+```
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To install this gem onto your local machine, run `bundle exec rake install`. 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/json_factory. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
-
+Bug reports and pull requests are welcome on GitHub at https://github.com/aklaiber/json_factory. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## License
 

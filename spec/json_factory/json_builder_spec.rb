@@ -128,7 +128,6 @@ describe JSONFactory::JSONBuilder do
       builder.build
     end
 
-    let(:cache) { JSONFactory::Cache.instance }
     subject { JSONFactory::JSONBuilder.new(factory) }
 
     before do
