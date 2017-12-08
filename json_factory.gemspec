@@ -7,11 +7,9 @@ require 'json_factory/version'
 Gem::Specification.new do |spec|
   spec.name          = 'json_factory'
   spec.version       = JSONFactory::VERSION
-  spec.authors       = ['Alexander Klaiber']
-  spec.email         = ['alex.klaiber@gmail.com']
+  spec.author        = 'Alexander Klaiber'
 
-  spec.summary       = 'JsonFactory is a Easy DSL to create JSON structures with the development focus on performance.'
-  spec.description   = 'JsonFactory is a Easy DSL to create JSON structures with the development focus on performance.'
+  spec.summary       = 'JsonFactory is a easy DSL to create JSON structures with a development focus on performance.'
   spec.homepage      = 'https://github.com/aklaiber/json_factory'
   spec.license       = 'MIT'
 

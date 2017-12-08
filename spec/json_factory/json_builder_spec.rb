@@ -141,10 +141,18 @@ describe JSONFactory::JSONBuilder do
   end
 
   describe 'load partial factory file' do
+    let(:partial_factory) do
+      <<-RUBY
+        json.member!(:id, 'id 1')
+      RUBY
+    end
+
+    let(:partial_file_path) { build_factory_file(partial_factory) }
+
     let(:factory) do
       <<-RUBY
         json.object! do |json|
-          json.partial!('/Users/aklaiber/Workspace/json_factory/spec/fixtures/test_partial')
+          json.partial!('#{partial_file_path}')
         end
       RUBY
     end
