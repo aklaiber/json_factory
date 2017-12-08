@@ -10,20 +10,12 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Alexander Klaiber']
   spec.email         = ['alex.klaiber@gmail.com']
 
-  spec.summary       = 'JSON schma to json'
-  spec.description   = 'JSON schma to json'
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = 'JsonFactory is a Easy DSL to create JSON structures with the development focus on performance.'
+  spec.description   = 'JsonFactory is a Easy DSL to create JSON structures with the development focus on performance.'
+  spec.homepage      = 'https://github.com/aklaiber/json_factory'
   spec.license       = 'MIT'
 
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
-  raise 'RubyGems 2.0 or newer is required to protect against public gem pushes.' unless spec.respond_to?(:metadata)
-
-  spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
-
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
-  spec.bindir        = 'exe'
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'activesupport', '>= 5.1.0'
