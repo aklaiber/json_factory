@@ -3,7 +3,7 @@
 module JSONFactory
   class JSONBuilder
     attr_accessor :output
-    attr_reader :stream, :factory, :cache
+    attr_reader :stream, :factory, :cache, :context
 
     def self.load_factory_file(path, context = nil)
       raise "file format is invalid. #{path}" unless File.extname(path).eql?('.jfactory')

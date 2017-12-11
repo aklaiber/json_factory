@@ -5,6 +5,8 @@ require 'oj'
 require 'active_support'
 require 'active_support/cache/redis_store'
 
+require 'json_factory/railtie' if defined?(Rails)
+
 require_relative 'json_factory/version'
 require_relative 'json_factory/context'
 require_relative 'json_factory/json_builder'

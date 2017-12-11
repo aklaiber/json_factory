@@ -8,8 +8,6 @@ module JSONFactory
 
     def initialize
       @prefix = 'json_factory'
-
-      self.store = ::Rails.cache if defined?(::Rails.cache)
     end
 
     attr_reader :store
