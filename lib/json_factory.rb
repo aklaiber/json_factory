@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'oj'
-
 require 'active_support'
 require 'active_support/cache/redis_store'
 
@@ -9,15 +7,29 @@ require 'json_factory/railtie' if defined?(Rails)
 
 require_relative 'json_factory/version'
 require_relative 'json_factory/context'
+require_relative 'json_factory/errors'
+require_relative 'json_factory/state'
+require_relative 'json_factory/converter'
+require_relative 'json_factory/dsl'
+require_relative 'json_factory/dsl/object_array'
+require_relative 'json_factory/template_store'
 require_relative 'json_factory/json_builder'
-require_relative 'json_factory/json_object'
 
 module JSONFactory
-  autoload :Cache,            'json_factory/cache.rb'
-  autoload :CacheError,       'json_factory/cache_error.rb'
-  autoload :CacheStoreProxy,  'json_factory/cache_store_proxy.rb'
-  autoload :BaseStoreProxy,   'json_factory/cache_store_proxy/base_store_proxy.rb'
-  autoload :RedisStoreProxy,  'json_factory/cache_store_proxy/redis_store_proxy.rb'
-  autoload :MemoryStoreProxy, 'json_factory/cache_store_proxy/memory_store_proxy.rb'
-  autoload :FileStoreProxy,   'json_factory/cache_store_proxy/file_store_proxy.rb'
+  autoload :Cache, 'json_factory/cache'
+  autoload :TemplateStore, 'json_factory/template_store.rb'
+
+  def self.build_template(filename, local_variables = {})
+    StringIO.open do |io|
+      JSONBuilder.new(io).render_template(filename, local_variables)
+      io.string
+    end
+  end
+
+  def self.build_string(string, local_variables = {})
+    StringIO.open do |io|
+      JSONBuilder.new(io).render_string(string, local_variables)
+      io.string
+    end
+  end
 end

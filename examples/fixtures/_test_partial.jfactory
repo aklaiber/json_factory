@@ -1,1 +1,1 @@
-json.member!(:id, context.id)
+json.member :id, id

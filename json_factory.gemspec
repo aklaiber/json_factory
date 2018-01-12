@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'activesupport', '>= 5.1.0'
-  spec.add_runtime_dependency 'oj'
+  spec.add_runtime_dependency 'json'
   spec.add_runtime_dependency 'redis-activesupport', '>= 5.0.0'
 
   spec.add_development_dependency 'bundler'

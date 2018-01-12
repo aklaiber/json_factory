@@ -3,10 +3,12 @@
 require 'tempfile'
 
 module JsonFactoryFileHelpers
+  # Creates a temporary file with the given content and returns its path.
+  # You have to unlink the file after using it.
   def build_factory_file(factory)
-    factory_file = ::Tempfile.new(%w[factory .jfactory])
-    factory_file.write(factory)
-    factory_file.rewind
-    factory_file.path
+    ::Tempfile.open(%w[factory .jfactory]) do |f|
+      f.write(factory)
+      f.path
+    end
   end
 end

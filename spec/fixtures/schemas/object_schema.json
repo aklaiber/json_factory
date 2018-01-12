@@ -17,7 +17,6 @@
             "sub_object": { "type": "null" }
           }
         },
-        "test_null":   { "type": "null" },
         "test_array":  {
           "type":  "array",
           "items": {

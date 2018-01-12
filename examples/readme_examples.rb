@@ -6,14 +6,15 @@ test_object_2 = OpenStruct.new(id: '002', name: 'TestObject3')
 test_object = OpenStruct.new(id: '1', name: 'TestObject1', description: 'Test2', test_objects: [test_object_1, test_object_2])
 
 factory = <<-RUBY
-  json.object! do |json|
-    json.object!(:data) do |json|
-      json.member!(:id, object.id)
-      json.member!(:name, object.name)
-
-      json.array!(object.test_objects, :test_array) do |json, test_object|
-        json.member!(:id, test_object.id)
-        json.member!(:name, test_object.name)
+  object! do
+    object!(:data) do
+      member!(:id, object.id)
+      member!(:name, object.name)
+      member!(:test_array) do
+        array!(object.test_objects) do |test_object|
+          member!(:id, test_object.id)
+          member!(:name, test_object.name)
+        end
       end
     end
   end
@@ -27,9 +28,9 @@ puts JSONFactory::JSONBuilder.new(factory, context).build
 
 
 factory = <<-RUBY
-  json.array! objects do |json, test_object|
-    json.member!(:id, test_object.id)
-    json.member!(:name, test_object.name)
+  array! objects do |test_object|
+    member!(:id, test_object.id)
+    member!(:name, test_object.name)
   end
 RUBY
 # create context object
