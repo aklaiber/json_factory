@@ -90,7 +90,7 @@ module JSONFactory
         binding.local_variable_set(key, value)
       end
       binding.local_variable_set(BUILDER_VARIABLE_NAME, DSL.new(self))
-      eval(string, binding, filename) # rubocop:disable Security/Eval
+      eval(string, binding, filename.to_s) # rubocop:disable Security/Eval
     end
 
     def render_template(filename, local_variables)

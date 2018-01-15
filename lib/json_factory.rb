@@ -19,17 +19,29 @@ module JSONFactory
   autoload :Cache, 'json_factory/cache'
   autoload :TemplateStore, 'json_factory/template_store.rb'
 
-  def self.build_template(filename, local_variables = {})
-    StringIO.open do |io|
-      JSONBuilder.new(io).render_template(filename, local_variables)
-      io.string
+  class Builder
+    def initialize(template, local_variables = {})
+      @io = StringIO.new
+      @template = template
+      @local_variables = local_variables
+    end
+
+    def context
+      @local_variables
+    end
+
+    def build
+      json_builder = JSONBuilder.new(@io)
+      if @template.is_a?(String)
+        json_builder.render_string(@template, @local_variables)
+      elsif @template.is_a?(Pathname)
+        json_builder.render_template(@template, @local_variables)
+      end
+      @io.string
     end
   end
 
-  def self.build_string(string, local_variables = {})
-    StringIO.open do |io|
-      JSONBuilder.new(io).render_string(string, local_variables)
-      io.string
-    end
+  def self.build(template, local_variables = {})
+    Builder.new(template, local_variables).build
   end
 end

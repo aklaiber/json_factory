@@ -59,7 +59,7 @@ describe JSONFactory::JSONBuilder do
 
 
       let(:context) { { object: test_object } }
-      subject(:result) { JSONFactory.build_string(template, context) }
+      subject(:result) { JSONFactory.build(template, context) }
 
       it 'builds json' do
         expect(result).to match_response_schema('object_schema.json')
@@ -80,7 +80,7 @@ describe JSONFactory::JSONBuilder do
       end
 
       let(:context) { { objects: [test_object_1, test_object_2] } }
-      subject(:result) { JSONFactory.build_string(template, context) }
+      subject(:result) { JSONFactory.build(template, context) }
 
       it 'builds json' do
         expect(result).to match_response_schema('top_level_array_schema.json')
@@ -88,11 +88,11 @@ describe JSONFactory::JSONBuilder do
     end
   end
 
-  describe '.load_factory' do
+  describe '.build' do
     after do
       File.unlink(template_file_path)
     end
-    let(:template_file_path) { build_factory_file(template) }
+    let(:template_file_path) { Pathname.new(build_factory_file(template)) }
     let(:template) do
       <<-RUBY
         json.object do
@@ -101,7 +101,7 @@ describe JSONFactory::JSONBuilder do
       RUBY
     end
 
-    subject(:result) { JSONFactory.build_template(template_file_path) }
+    subject(:result) { JSONFactory.build(template_file_path) }
 
     it 'builds json' do
       expect(result).to eql('{"id":"test-id"}')
@@ -134,10 +134,10 @@ describe JSONFactory::JSONBuilder do
 
     before do
       JSONFactory::Cache.instance.store = ActiveSupport::Cache::MemoryStore.new
-      JSONFactory.build_string(template)
+      JSONFactory.build(template)
     end
 
-    subject(:result) { JSONFactory.build_string(template) }
+    subject(:result) { JSONFactory.build(template) }
 
     it 'returns cached json' do
       expect(result).to eql('{"foo":{"name":"name"},"foo":{"id":"123","name":"name"}}')
@@ -174,7 +174,7 @@ describe JSONFactory::JSONBuilder do
       RUBY
     end
 
-    subject(:result) { JSONFactory.build_string(template) }
+    subject(:result) { JSONFactory.build(template) }
 
     it 'evaluates the partial' do
       expect(result).to eql('[{"id":"id 1"},{"name":"name","id":"id 1"}]')

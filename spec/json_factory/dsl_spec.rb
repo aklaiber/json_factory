@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe JSONFactory::DSL do
-  let(:result) { JSONFactory.build_string(template) }
+  let(:result) { JSONFactory.build(template) }
 
   describe '#value' do
     describe 'with a numeric argument' do
