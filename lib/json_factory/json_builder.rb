@@ -19,14 +19,14 @@ module JSONFactory
 
     def value(value = nil)
       raise TypeNotAllowedError, 'Can only add value as a value' unless type == :value
-      raise TypeNotAllowedError, 'Cannot add multiple values' unless count == 0
+      raise TypeNotAllowedError, 'Cannot add multiple values' unless count.zero?
       add_value(value)
       increment_count
     end
 
     def array
       raise TypeNotAllowedError, 'Can only add array as a value' unless type == :value
-      raise TypeNotAllowedError, 'Cannot add multiple values' unless count == 0
+      raise TypeNotAllowedError, 'Cannot add multiple values' unless count.zero?
 
       io << TOKEN_LEFT_SQUARE_BRACKET
       push_type(:array) { yield } if block_given?
@@ -48,7 +48,7 @@ module JSONFactory
 
     def object
       raise TypeNotAllowedError, 'Can only add object as a value' unless type == :value
-      raise TypeNotAllowedError, 'Cannot add multiple values' unless count == 0
+      raise TypeNotAllowedError, 'Cannot add multiple values' unless count.zero?
 
       io << TOKEN_LEFT_CURLY_BRACKET
       push_type(:object) { yield } if block_given?
@@ -84,7 +84,6 @@ module JSONFactory
     end
 
     def evaluate(string, local_variables, filename)
-      # evaluate(template, local_variables)
       binding = jfactory
       local_variables.each_pair do |key, value|
         binding.local_variable_set(key, value)
@@ -110,7 +109,7 @@ module JSONFactory
     end
 
     def add_separator
-      io << TOKEN_COMMA unless count == 0
+      io << TOKEN_COMMA unless count.zero?
     end
 
     def io
@@ -138,7 +137,7 @@ module JSONFactory
     def push_type(type)
       @stack.push(State.new(io, type))
       yield
-      raise EmptyValueError if type == :value && count == 0
+      raise EmptyValueError if type == :value && count.zero?
       @stack.pop
     end
   end

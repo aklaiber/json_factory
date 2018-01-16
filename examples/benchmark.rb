@@ -33,6 +33,6 @@ end
 # CURRENT RUNTIME WITH 1000 and 10 = 0.133410
 Benchmark.bmbm(10) do |x|
   x.report(:json_factory) do
-    JSONFactory.build_template('fixtures/test.jfactory', objects: objects)
+    JSONFactory.build('fixtures/test.jfactory', objects: objects)
   end
 end

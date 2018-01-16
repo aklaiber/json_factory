@@ -44,7 +44,7 @@ describe JSONFactory::JSONBuilder do
                     json.partial '#{partial_1_file_path}', test_object: object
                   end
                 end
-  
+
                 json.member :test_array do
                   json.object_array(object.test_objects) do |test_object|
                     json.member :name, test_object.name
@@ -57,12 +57,10 @@ describe JSONFactory::JSONBuilder do
         RUBY
       end
 
-
       let(:context) { { object: test_object } }
-      subject(:result) { JSONFactory.build(template, context) }
 
       it 'builds json' do
-        expect(result).to match_response_schema('object_schema.json')
+        expect(JSONFactory.build(template, context)).to match_response_schema('object_schema.json')
       end
     end
   end
@@ -80,67 +78,10 @@ describe JSONFactory::JSONBuilder do
       end
 
       let(:context) { { objects: [test_object_1, test_object_2] } }
-      subject(:result) { JSONFactory.build(template, context) }
 
       it 'builds json' do
-        expect(result).to match_response_schema('top_level_array_schema.json')
+        expect(JSONFactory.build(template, context)).to match_response_schema('top_level_array_schema.json')
       end
-    end
-  end
-
-  describe '.build' do
-    after do
-      File.unlink(template_file_path)
-    end
-    let(:template_file_path) { Pathname.new(build_factory_file(template)) }
-    let(:template) do
-      <<-RUBY
-        json.object do
-          json.member(:id, 'test-id')
-        end
-      RUBY
-    end
-
-    subject(:result) { JSONFactory.build(template_file_path) }
-
-    it 'builds json' do
-      expect(result).to eql('{"id":"test-id"}')
-    end
-  end
-
-  describe '#cache!' do
-    let(:template) do
-      <<-RUBY
-        json.object do
-          json.member :foo do
-            json.object do
-              json.cache 'test-cache-key' do
-                json.member :name, 'name'
-              end
-            end
-          end
-
-          json.member :foo do
-            json.object do
-              json.member :id, '123'
-              json.cache 'test-cache-key' do
-                # this will be replaced by the cached value above
-              end
-            end
-          end
-        end
-      RUBY
-    end
-
-    before do
-      JSONFactory::Cache.instance.store = ActiveSupport::Cache::MemoryStore.new
-      JSONFactory.build(template)
-    end
-
-    subject(:result) { JSONFactory.build(template) }
-
-    it 'returns cached json' do
-      expect(result).to eql('{"foo":{"name":"name"},"foo":{"id":"123","name":"name"}}')
     end
   end
 
@@ -174,10 +115,42 @@ describe JSONFactory::JSONBuilder do
       RUBY
     end
 
-    subject(:result) { JSONFactory.build(template) }
-
     it 'evaluates the partial' do
-      expect(result).to eql('[{"id":"id 1"},{"name":"name","id":"id 1"}]')
+      expect(JSONFactory.build(template)).to eql('[{"id":"id 1"},{"name":"name","id":"id 1"}]')
+    end
+  end
+
+  describe '#cache' do
+    let(:template) do
+      <<-RUBY
+        json.object do
+          json.member :foo do
+            json.object do
+              json.cache 'test-cache-key' do
+                json.member :name, 'name'
+              end
+            end
+          end
+
+          json.member :foo do
+            json.object do
+              json.member :id, '123'
+              json.cache 'test-cache-key' do
+                # this will be replaced by the cached value above
+              end
+            end
+          end
+        end
+      RUBY
+    end
+
+    before do
+      JSONFactory::Cache.instance.store = ActiveSupport::Cache::MemoryStore.new
+      JSONFactory.build(template)
+    end
+
+    it 'returns cached json' do
+      expect(JSONFactory.build(template)).to eql('{"foo":{"name":"name"},"foo":{"id":"123","name":"name"}}')
     end
   end
 end
