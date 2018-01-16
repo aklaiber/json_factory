@@ -1,8 +1,10 @@
-json.array! objects do |json, test_object|
-  json.member!(:id, test_object.id)
-  json.member!(:name, test_object.name)
-  json.member!(:description, test_object.description)
-  json.array!(test_object.test_array, :test_array) do |json, test_sub_object|
-    json.partial! 'fixtures/test_partial', id: test_sub_object.id
+json.object_array(objects) do |test_object|
+  json.member :id, test_object.id
+  json.member :name, test_object.name
+  json.member :description, test_object.description
+  json.member :test_array do
+    json.object_array(test_object.test_array) do |test_sub_object|
+      json.partial 'fixtures/test_partial', id: test_sub_object.id
+    end
   end
 end

@@ -12,6 +12,9 @@ Style/ClassVars:
   Exclude:
     - lib/json_factory/json_builder.rb
 
+Metrics/ClassLength:
+  Max: 150
+
 Metrics/LineLength:
   Max: 140
   Exclude:

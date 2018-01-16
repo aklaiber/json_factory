@@ -22,27 +22,28 @@ Or install it yourself as:
 
 ## Usage
 
-| DSL Method    | Description                      | 
-| ------------- |:-------------------------------- |  
-| json.object!  | Create a json object             |   
-| json.array!   | Create a json array              | 
-| json.member!  | Create key value pair            |
-| json.null!    | Set object to "null"             |   
-| json.partial! | Load sub jfactory file           |
-| json.cache!   | Read and write from cache stores |
+| DSL Method | Description                      | 
+| ---------- |:-------------------------------- |  
+| object!    | Create a json object             |   
+| array!     | Create a json array              | 
+| member!    | Create key value pair            |
+| null!      | Set object to "null"             |   
+| partial!   | Load sub jfactory file           |
+| cache!     | Read and write from cache stores |
 
 ##### Top level object  JSON structure
 
 ```ruby
 factory = <<-RUBY
-  json.object! do |json|
-    json.object!(:data) do |json|
-      json.member!(:id, object.id)
-      json.member!(:name, object.name)
-
-      json.array!(object.test_objects, :test_array) do |json, test_object|
-        json.member!(:id, test_object.id)
-        json.member!(:name, test_object.name)
+  object! do
+    object!(:data) do
+      member!(:id, object.id)
+      member!(:name, object.name)
+      member!(:test_array) do
+        array!(object.test_objects) do |test_object|
+          member!(:id, test_object.id)
+          member!(:name, test_object.name)
+        end
       end
     end
   end
@@ -76,9 +77,9 @@ puts JSONFactory::JSONBuilder.new(factory, context).build
 
 ```ruby
 factory = <<-RUBY
-  json.array! objects do |json, test_object|
-    json.member!(:id, test_object.id)
-    json.member!(:name, test_object.name)
+  array! objects do |test_object|
+    member!(:id, test_object.id)
+    member!(:name, test_object.name)
   end
 RUBY
 
@@ -103,8 +104,8 @@ puts JSONFactory::JSONBuilder.new(factory, context).build
 
 ```ruby
 # tmp/test.jfactory
-json.member!(:id, test_object.id)
-json.member!(:name, test_object.name)
+member!(:id, test_object.id)
+member!(:name, test_object.name)
 ``` 
 
 ```ruby
@@ -121,14 +122,14 @@ puts JSONFactory::JSONBuilder.load_factory_file('tmp/test.jfactory', context).bu
 
 ```ruby
 # tmp/_test_partial.jfactory
-json.member!(:id, test_object.id)
-json.member!(:name, test_object.name)
+member!(:id, test_object.id)
+member!(:name, test_object.name)
 ```  
 
 ```ruby
 # tmp/test.jfactory
-json.object! do |json|
-  json.partial!('tmp/test_partial', test_object: object)
+object! do
+  partial!('tmp/test_partial', test_object: object)
 end
 ``` 
 
@@ -146,11 +147,11 @@ puts JSONFactory::JSONBuilder.load_factory_file('tmp/test.jfactory', context).bu
 
 ```ruby
 factory = <<-RUBY
-  json.object! do |json|
-    json.object!(:data) do |json|
-      json.cache! 'test-cache-key' do |json|
-        json.member!(:id, object.id)
-        json.member!(:name, object.name)
+  object! do
+    object!(:data) do
+      cache! 'test-cache-key' do
+        member!(:id, object.id)
+        member!(:name, object.name)
       end
     end
   end

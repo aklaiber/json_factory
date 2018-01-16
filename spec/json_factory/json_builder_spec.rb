@@ -9,113 +9,135 @@ describe JSONFactory::JSONBuilder do
 
   describe 'top level object schema' do
     context 'with factory string' do
+      after do
+        File.unlink(partial_1_file_path, partial_2_file_path)
+      end
       let(:partial_1_file_path) { build_factory_file(partial_1) }
       let(:partial_2_file_path) { build_factory_file(partial_2) }
 
       let(:partial_1) do
         <<-RUBY
-          json.member!(:id, test_object.id)
-          json.member!(:name, test_object.name)
-          json.object!(:sub_object) do |json|
-            json.partial!('#{partial_2_file_path}')
-          end
+          json.member :id, test_object.id
+          json.member :name, test_object.name
+          json.member :sub_object, nil
         RUBY
       end
 
       let(:partial_2) do
         <<-RUBY
-          json.null!
+          json.object do
+            json.member :id, nil
+          end
         RUBY
       end
 
-      let(:factory) do
+      let(:template) do
         <<-RUBY
-          json.object! do |json|
-            json.member!(:meta, nil)
-            json.object!(:data) do |json|
-              json.member!(:id, object.id)
+          json.object do
+            json.member :meta, nil
+            json.member :data do
+              json.object do
+                json.member :id, object.id
+                json. member :test_object do
+                  json.object do
+                    json.member :test, "test"
+                    json.partial '#{partial_1_file_path}', test_object: object
+                  end
+                end
 
-              json.object!(:test_object) do |json|
-                json.member!(:test, "test")
-                json.partial!('#{partial_1_file_path}', test_object: object)
-              end
-
-              json.object!(:test_null) do |json|
-                json.null!
-              end
-
-              json.array!(object.test_objects, :test_array) do |json, test_object|
-                json.member!(:name, test_object.name)
-                json.member!(:description, test_object.description)
+                json.member :test_array do
+                  json.object_array(object.test_objects) do |test_object|
+                    json.member :name, test_object.name
+                    json.member :description, test_object.description
+                  end
+                end
               end
             end
           end
         RUBY
       end
 
+      let(:context) { { object: test_object } }
 
-      let(:context) { JSONFactory::Context.new(object: test_object) }
-  
-      subject { JSONFactory::JSONBuilder.new(factory, context) }
-  
       it 'builds json' do
-        expect(subject.build).to match_response_schema('object_schema.json')
+        expect(JSONFactory.build(template, context)).to match_response_schema('object_schema.json')
       end
     end
   end
 
   describe 'top level array schema' do
     context 'with factory string' do
-      let(:factory) do
+      let(:template) do
         <<-RUBY
-          json.array! objects do |json, test_object|
-            json.member!(:id, test_object.id)
-            json.member!(:name, test_object.name)
-            json.member!(:description, test_object.description)
+          json.object_array(objects) do |test_object|
+            json.member :id, test_object.id
+            json.member :name, test_object.name
+            json.member :description, test_object.description
           end
         RUBY
       end
 
-      let(:context) { JSONFactory::Context.new(objects: [test_object_1, test_object_2]) }
-
-      subject { JSONFactory::JSONBuilder.new(factory, context) }
+      let(:context) { { objects: [test_object_1, test_object_2] } }
 
       it 'builds json' do
-        expect(subject.build).to match_response_schema('top_level_array_schema.json')
+        expect(JSONFactory.build(template, context)).to match_response_schema('top_level_array_schema.json')
       end
     end
   end
 
-  describe '.load_factory' do
-    let(:factory) do
+  describe 'load partial factory file' do
+    after do
+      File.unlink(partial_file_path)
+    end
+    let(:partial) do
       <<-RUBY
-        json.object! do |json|
-          json.member!(:id, 'test-id')
+        json.member :id, 'id 1'
+      RUBY
+    end
+
+    let(:partial_file_path) { build_factory_file(partial) }
+
+    let(:template) do
+      <<-RUBY
+        json.array do
+          json.element do
+            json.object do
+              json.partial '#{partial_file_path}'
+            end
+          end
+          json.element do
+            json.object do
+              json.member :name, 'name'
+              json.partial '#{partial_file_path}'
+            end
+          end
         end
       RUBY
     end
 
-    subject { JSONFactory::JSONBuilder.load_factory_file(build_factory_file(factory)) }
-
-    it 'builds json' do
-      expect(subject.build).to eql('{"id":"test-id"}')
+    it 'evaluates the partial' do
+      expect(JSONFactory.build(template)).to eql('[{"id":"id 1"},{"name":"name","id":"id 1"}]')
     end
   end
 
-  describe '#cache!' do
-    let(:store) { ActiveSupport::Cache::MemoryStore.new }
-    let(:factory) do
+  describe '#cache' do
+    let(:template) do
       <<-RUBY
-        json.object! do |json|
-          json.member!(:id1, 'id 1')
-          json.member!(:id2, 'id 2')
-          json.cache! 'test-cache-key' do |json|
-            json.member!(:id3, 'id 3')
+        json.object do
+          json.member :foo do
+            json.object do
+              json.cache 'test-cache-key' do
+                json.member :name, 'name'
+              end
+            end
           end
 
-          json.cache! 'test-cache-key-for-test_object' do |json|
-            json.object!(:test_object) do |json|
-              json.member!(:test, "test")
+          json.member :foo do
+            json.object do
+              json.member :id, '123'
+              json.cache 'test-cache-key' do
+                # this will be replaced by the cached value above
+              end
             end
           end
         end
@@ -123,42 +145,12 @@ describe JSONFactory::JSONBuilder do
     end
 
     before do
-      builder = JSONFactory::JSONBuilder.new(factory)
-      builder.cache.store = store
-      builder.build
-    end
-
-    subject { JSONFactory::JSONBuilder.new(factory) }
-
-    before do
-      subject.cache.store = store
+      JSONFactory::Cache.instance.store = ActiveSupport::Cache::MemoryStore.new
+      JSONFactory.build(template)
     end
 
     it 'returns cached json' do
-      expect_any_instance_of(JSONFactory::Cache).to receive(:read).twice.and_call_original
-      expect(subject.build).to eql('{"id1":"id 1","id2":"id 2","id3":"id 3","test_object":{"test":"test"}}')
+      expect(JSONFactory.build(template)).to eql('{"foo":{"name":"name"},"foo":{"id":"123","name":"name"}}')
     end
-  end
-
-  describe 'load partial factory file' do
-    let(:partial_factory) do
-      <<-RUBY
-        json.member!(:id, 'id 1')
-      RUBY
-    end
-
-    let(:partial_file_path) { build_factory_file(partial_factory) }
-
-    let(:factory) do
-      <<-RUBY
-        json.object! do |json|
-          json.partial!('#{partial_file_path}')
-        end
-      RUBY
-    end
-
-    subject { JSONFactory::JSONBuilder.new(factory) }
-
-    it { expect(subject.build).to eql('{"id":"id 1"}') }
   end
 end

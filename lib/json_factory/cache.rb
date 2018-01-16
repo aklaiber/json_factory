@@ -3,22 +3,18 @@
 module JSONFactory
   class Cache
     include Singleton
-
-    attr_accessor :prefix
+    attr_accessor :store, :prefix
 
     def initialize
       @prefix = 'json_factory'
     end
 
-    attr_reader :store
-    alias store_proxy store
-
-    def store=(store)
-      @store = CacheStoreProxy.build(store)
+    def transform_key(key)
+      [prefix, key].compact.join(':')
     end
 
-    delegate :read, to: :store
-    delegate :write, to: :store
-    delegate :delete, to: :store
+    def fetch(key, options = nil, &block)
+      store.fetch(transform_key(key), options, &block)
+    end
   end
 end
