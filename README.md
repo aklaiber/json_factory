@@ -57,7 +57,7 @@ test_object_1 = OpenStruct.new(id: '001', name: 'TestObject2')
 test_object_2 = OpenStruct.new(id: '002', name: 'TestObject3')
 test_object = OpenStruct.new(id: '1', name: 'TestObject1', test_objects: [test_object_1, test_object_2])
 
-puts JSONFactory::JSONBuilder.new(factory, object: test_object).build
+puts JSONFactory.build(factory, object: test_object)
 ```
 
 ```json
@@ -87,7 +87,7 @@ RUBY
 test_object_1 = OpenStruct.new(id: '001', name: 'TestObject2')
 test_object_2 = OpenStruct.new(id: '002', name: 'TestObject3')
 
-puts JSONFactory::JSONBuilder.new(factory, objects: [test_object_1, test_object_2]).build
+puts JSONFactory.build(factory, objects: [test_object_1, test_object_2])
 ```
 
 ```json
