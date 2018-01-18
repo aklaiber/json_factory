@@ -2,7 +2,7 @@
 
 module JSONFactory
   class Railtie < Rails::Railtie
-    initializer 'json_factory.cache' do |app|
+    initializer 'json_factory.cache' do
       Cache.instance.store = Rails.cache
     end
 

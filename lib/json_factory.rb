@@ -6,6 +6,7 @@ require 'active_support/cache/redis_store'
 require 'json_factory/railtie' if defined?(Rails)
 
 require_relative 'json_factory/version'
+require_relative 'json_factory/configuration'
 require_relative 'json_factory/errors'
 require_relative 'json_factory/state'
 require_relative 'json_factory/converter'
@@ -21,5 +22,13 @@ module JSONFactory
 
   def self.build(template, local_variables = {})
     Builder.new(template, local_variables).build
+  end
+
+  def self.configure
+    if block_given?
+      yield Configuration.instance
+    else
+      Configuration.instance
+    end
   end
 end
