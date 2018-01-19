@@ -153,7 +153,7 @@ RUBY
 # test data 
 test_object = OpenStruct.new(id: '1', name: 'TestObject1')
 
-JSONFactory::Cache.instance.store = = ActiveSupport::Cache::MemoryStore.new
+JSONFactory::Cache.instance.store = ActiveSupport::Cache::MemoryStore.new
 
 puts JSONFactory.build(factory, object: test_object) # => { "data": { "id": "1", "name": "TestObject1" } }
 ```
