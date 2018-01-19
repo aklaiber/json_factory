@@ -148,6 +148,8 @@ JSONFactory::JSONBuilder.class_eval do
   def jfactory
     Object.allocate.instance_eval do
       class << self
+        JSONFactory.configure.helpers.each { |mod| include mod }
+
         def to_s
           'jfactory'
         end
