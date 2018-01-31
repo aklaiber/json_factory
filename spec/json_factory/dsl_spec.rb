@@ -295,6 +295,22 @@ describe JSONFactory::DSL do
     end
   end
 
+  describe '#object_if' do
+    context 'true' do
+      let(:template) { 'json.object { json.member :foo { json.object_if(true) { json.member :bar, 1 } } }' }
+      it 'generates an empty object literal' do
+        expect(result).to eq('{"foo":{"bar":1}}')
+      end
+    end
+
+    context 'false' do
+      let(:template) { 'json.object { json.member :foo { json.object_if(false) { json.member :bar, 1 } } }' }
+      it 'generates an empty object literal' do
+        expect(result).to eq('{"foo":null}')
+      end
+    end
+  end
+
   describe '#cache' do
     pending
   end
