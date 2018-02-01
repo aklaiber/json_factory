@@ -22,17 +22,17 @@ Or install it yourself as:
 
 ## Usage
 
-| DSL Method   | Description                                                         | 
-| ------------ |:------------------------------------------------------------------- |  
-| value        | Generates a JSON value.                                             |   
-| object       | Generates a JSON object.                                            |   
-| member       | Adds a key-value pair to a JSON object.                             |
-| array        | Generates a JSON array.                                             | 
-| object_array | Generates a JSON array.                                             |
-| element      | Adds a value to a JSON array.                                       | 
-| partial      | Loads the given partial and evaluates it using the local variables. |
-| cache        | Caches the given content under the specified key.                   |
-| object_if    | Generates a JSON object if condition is true.                       |
+| DSL Method                           | Description                                                         | 
+| ------------------------------------ |:------------------------------------------------------------------- |  
+| [value](#value-method)               | Generates a JSON value.                                             |   
+| [object](#object-method)             | Generates a JSON object.                                            |   
+| [member](#member-method)             | Adds a key-value pair to a JSON object.                             |
+| [array](#array-method)               | Generates a JSON array.                                             | 
+| [object_array](#object_array-method) | Generates a JSON array.                                             |
+| [element](#element-method)           | Adds a value to a JSON array.                                       | 
+| [partial](#partial-method)           | Loads the given partial and evaluates it using the local variables. |
+| [cache](#cache-method)               | Caches the given content under the specified key.                   |
+| [object_if](#object_if-method)       | Generates a JSON object if condition is true.                       |
 
 ##### value method 
 
