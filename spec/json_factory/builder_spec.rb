@@ -5,9 +5,9 @@ require 'spec_helper'
 describe JSONFactory::Builder do
   let(:template) do
     <<-RUBY
-        json.object do
-          json.member(:id, 'test-id')
-        end
+      json.object do
+        json.member(:id, 'test-id')
+      end
     RUBY
   end
 

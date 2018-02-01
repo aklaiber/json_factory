@@ -3,154 +3,52 @@
 require 'spec_helper'
 
 describe JSONFactory::JSONBuilder do
-  let(:test_object_1) { OpenStruct.new(id: '001', name: 'TestObject1', description: 'Test1') }
-  let(:test_object_2) { OpenStruct.new(id: '002', name: 'TestObject2', description: 'Test2') }
-  let(:test_object) { OpenStruct.new(id: '1', name: 'TestObject2', description: 'Test2', test_objects: [test_object_1, test_object_2]) }
+  describe '#jfactory' do
+    subject(:builder) { JSONFactory::JSONBuilder.new(nil) }
+    let(:jfactory) { builder.send(:jfactory) }
 
-  describe 'top level object schema' do
-    context 'with factory string' do
-      after do
-        File.unlink(partial_1_file_path, partial_2_file_path)
-      end
-      let(:partial_1_file_path) { build_factory_file(partial_1) }
-      let(:partial_2_file_path) { build_factory_file(partial_2) }
+    it 'returns a binding' do
+      expect(jfactory).to be_a(Binding)
+    end
 
-      let(:partial_1) do
-        <<-RUBY
-          json.member :id, test_object.id
-          json.member :name, test_object.name
-          json.member :sub_object, nil
-        RUBY
-      end
+    it 'is an instance of Object' do
+      expect(eval('self.class', jfactory, __FILE__, __LINE__)).to eq(Object)
+    end
 
-      let(:partial_2) do
-        <<-RUBY
-          json.object do
-            json.member :id, nil
-          end
-        RUBY
-      end
+    it 'it resolves constants at the top-level' do
+      expect(eval('Module.nesting', jfactory, __FILE__, __LINE__)).to be_empty
+    end
 
-      let(:template) do
-        <<-RUBY
-          json.object do
-            json.member :meta, nil
-            json.member :data do
-              json.object do
-                json.member :id, object.id
-                json. member :test_object do
-                  json.object do
-                    json.member :test, "test"
-                    json.partial '#{partial_1_file_path}', test_object: object
-                  end
-                end
+    it 'does not contain local variables' do
+      expect(eval('local_variables', jfactory, __FILE__, __LINE__)).to be_empty
+    end
 
-                json.member :test_array do
-                  json.object_array(object.test_objects) do |test_object|
-                    json.member :name, test_object.name
-                    json.member :description, test_object.description
-                  end
-                end
-              end
-            end
-          end
-        RUBY
-      end
-
-      let(:context) { { object: test_object } }
-
-      it 'builds json' do
-        expect(JSONFactory.build(template, context)).to match_response_schema('object_schema.json')
+    describe '#to_s' do
+      it 'returns "jfactory"' do
+        expect(eval('self.to_s', jfactory, __FILE__, __LINE__)).to eq('jfactory')
       end
     end
-  end
 
-  describe 'top level array schema' do
-    context 'with factory string' do
-      let(:template) do
-        <<-RUBY
-          json.object_array(objects) do |test_object|
-            json.member :id, test_object.id
-            json.member :name, test_object.name
-            json.member :description, test_object.description
-          end
-        RUBY
-      end
-
-      let(:context) { { objects: [test_object_1, test_object_2] } }
-
-      it 'builds json' do
-        expect(JSONFactory.build(template, context)).to match_response_schema('top_level_array_schema.json')
+    describe '#inspect' do
+      it 'returns "jfactory"' do
+        expect(eval('self.inspect', jfactory, __FILE__, __LINE__)).to eq('jfactory')
       end
     end
-  end
 
-  describe 'load partial factory file' do
-    after do
-      File.unlink(partial_file_path)
-    end
-    let(:partial) do
-      <<-RUBY
-        json.member :id, 'id 1'
-      RUBY
-    end
+    describe 'variable scope' do
+      let(:a) { builder.send(:jfactory) }
+      let(:b) { builder.send(:jfactory) }
 
-    let(:partial_file_path) { build_factory_file(partial) }
+      it 'returns a new instance every time' do
+        expect(a).not_to equal(b)
+      end
 
-    let(:template) do
-      <<-RUBY
-        json.array do
-          json.element do
-            json.object do
-              json.partial '#{partial_file_path}'
-            end
-          end
-          json.element do
-            json.object do
-              json.member :name, 'name'
-              json.partial '#{partial_file_path}'
-            end
-          end
-        end
-      RUBY
-    end
-
-    it 'evaluates the partial' do
-      expect(JSONFactory.build(template)).to eql('[{"id":"id 1"},{"name":"name","id":"id 1"}]')
-    end
-  end
-
-  describe '#cache' do
-    let(:template) do
-      <<-RUBY
-        json.object do
-          json.member :foo do
-            json.object do
-              json.cache 'test-cache-key' do
-                json.member :name, 'name'
-              end
-            end
-          end
-
-          json.member :foo do
-            json.object do
-              json.member :id, '123'
-              json.cache 'test-cache-key' do
-                # this will be replaced by the cached value above
-              end
-            end
-          end
-        end
-      RUBY
-    end
-
-    before do
-      JSONFactory::Cache.instance.store = ActiveSupport::Cache::MemoryStore.new
-      JSONFactory.build(template)
-    end
-
-    it 'returns cached json' do
-      expect(JSONFactory.build(template)).to eql('{"foo":{"name":"name"},"foo":{"id":"123","name":"name"}}')
+      it 'does not share local variables between instances' do
+        a.local_variable_set(:foo, 1)
+        b.local_variable_set(:foo, 2)
+        expect(a.local_variable_get(:foo)).to eq(1)
+        expect(b.local_variable_get(:foo)).to eq(2)
+      end
     end
   end
 end

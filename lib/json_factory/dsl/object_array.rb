@@ -14,7 +14,7 @@ module JSONFactory
     #   json.array do
     #     [1,2,3].each do |id|
     #       json.object do
-    #         json.member :id, id
+    #         json.element :id, id
     #       end
     #     end
     #   end

@@ -22,17 +22,29 @@ Or install it yourself as:
 
 ## Usage
 
-| DSL Method | Description                                                         | 
-| ---------- |:------------------------------------------------------------------- |  
-| value      | Generates a JSON value.                                             |   
-| object     | Generates a JSON object structure.                                  |   
-| member     | Adds a key-value pair to a JSON object.                             |
-| array      | Generates a JSON array structure.                                   | 
-| element    | Adds a value to a JSON array.                                        | 
-| partial    | Loads the given partial and evaluates it using the local variables. |
-| cache      | Caches the given content under the specified key.                   |
+| DSL Method   | Description                                                         | 
+| ------------ |:------------------------------------------------------------------- |  
+| value        | Generates a JSON value.                                             |   
+| object       | Generates a JSON object.                                            |   
+| member       | Adds a key-value pair to a JSON object.                             |
+| array        | Generates a JSON array.                                             | 
+| object_array | Generates a JSON array.                                             |
+| element      | Adds a value to a JSON array.                                       | 
+| partial      | Loads the given partial and evaluates it using the local variables. |
+| cache        | Caches the given content under the specified key.                   |
+| object_if    | Generates a JSON object if condition is true.                       |
 
-##### Top level object  JSON structure
+##### value method 
+
+```ruby
+factory = <<-RUBY
+  json.value nil
+RUBY
+
+puts JSONFactory.build(factory) # => null
+```
+
+##### object method 
 
 ```ruby
 factory = <<-RUBY
@@ -40,79 +52,82 @@ factory = <<-RUBY
     json.member :data do
       json.object do
         json.member :id, object.id
-        json.member :name, object.name
-        json.member :test_array do
-          json.object_array(object.test_objects) do |test_object|
-            json.member :id, test_object.id)
-            json.member :name, test_object.name
-          end
-        end
       end
     end 
   end
 RUBY
 
 # test data 
-test_object_1 = OpenStruct.new(id: '001', name: 'TestObject2')
-test_object_2 = OpenStruct.new(id: '002', name: 'TestObject3')
-test_object = OpenStruct.new(id: '1', name: 'TestObject1', test_objects: [test_object_1, test_object_2])
+test_object = OpenStruct.new(id: 1)
 
-puts JSONFactory.build(factory, object: test_object)
+puts JSONFactory.build(factory, object: test_object) # => {"data":{"id":1}}
 ```
 
-```json
-{
-  "data": {
-    "id": "1",
-    "name": "TestObject1",
-    "test_array": [
-      { "id": "001", "name": "TestObject2" },
-      { "id": "002", "name": "TestObject3" }
-    ]
-  }
-}
+##### member method 
+
+```ruby
+factory = <<-RUBY
+  json.object do 
+    json.member :foo, 'bar' 
+  end
+RUBY
+
+puts JSONFactory.build(factory) # => {"foo":"bar"}
 ```
 
-##### Top level array JSON structure
+##### array method
+
+```ruby
+factory = <<-RUBY
+  json.array
+    objects.each do |test_object|   
+      json.element :id, test_object.id
+    end
+  end
+RUBY
+
+# test data 
+test_object_1 = OpenStruct.new(id: 1)
+test_object_2 = OpenStruct.new(id: 2)
+
+puts JSONFactory.build(factory, objects: [test_object_1, test_object_2]) # => [{"id": 1},{"id":2}]
+```
+
+##### object_array method
 
 ```ruby
 factory = <<-RUBY
   json.object_array objects  do |test_object|
     json.member :id, test_object.id
-    json.member :name, test_object.name
   end
 RUBY
 
 # test data 
-test_object_1 = OpenStruct.new(id: '001', name: 'TestObject2')
-test_object_2 = OpenStruct.new(id: '002', name: 'TestObject3')
+test_object_1 = OpenStruct.new(id: 1)
+test_object_2 = OpenStruct.new(id: 2)
 
-puts JSONFactory.build(factory, objects: [test_object_1, test_object_2])
+puts JSONFactory.build(factory, objects: [test_object_1, test_object_2]) # => [{"id":1},{"id":2}]
 ```
 
-```json
-[
-  { "id": "001", "name": "TestObject2" },
-  { "id": "002", "name": "TestObject3" }
-]
+##### element method
+
+```ruby
+factory = <<-RUBY
+  json.array
+    objects.each do |test_object|   
+      json.element :id, test_object.id
+    end
+  end
+RUBY
+
+# test data 
+test_object_1 = OpenStruct.new(id: 1)
+test_object_2 = OpenStruct.new(id: 2)
+
+puts JSONFactory.build(factory, objects: [test_object_1, test_object_2]) # => [{"id": 1},{"id":2}]
 ```
 
-##### Load jfactory files
-
-```ruby
-# tmp/test.jfactory
-json.member :id, test_object.id
-json.member :name, test_object.name
-``` 
-
-```ruby
-# test data
-test_object = OpenStruct.new(id: '1', name: 'TestObject1')
-
-puts JSONFactory.build('tmp/test.jfactory', object: test_object).build # => { "id": 1, name: "TestObject1" }
-```        
-
-##### Load partials 
+##### partial method
 
 ```ruby
 # tmp/_test_partial.jfactory
@@ -134,7 +149,7 @@ test_object = OpenStruct.new(id: '1', name: 'TestObject1')
 puts JSONFactory.build('tmp/test.jfactory', object: test_object).build # => { "id": 1, name: "TestObject1" }
 ```  
 
-##### Use cache stores
+##### cache method
 
 ```ruby
 factory = <<-RUBY
@@ -153,10 +168,55 @@ RUBY
 # test data 
 test_object = OpenStruct.new(id: '1', name: 'TestObject1')
 
+# set cache store
 JSONFactory::Cache.instance.store = ActiveSupport::Cache::MemoryStore.new
 
 puts JSONFactory.build(factory, object: test_object) # => { "data": { "id": "1", "name": "TestObject1" } }
 ```
+
+##### object_if method
+
+```ruby
+factory = <<-RUBY
+  json.object do
+    json.member :data do
+      json.object_if true do
+        json.member :foo, 'bar'
+      end
+    end 
+  end
+RUBY
+
+puts JSONFactory.build(factory) # => { "data": { "foo": "bar" } }
+```
+```ruby
+factory = <<-RUBY
+  json.object do
+    json.member :data do
+      json.object_if false do
+        json.member :foo, 'bar'
+      end
+    end 
+  end
+RUBY
+
+puts JSONFactory.build(factory) # => { "data": null }
+```
+
+##### Load jfactory files
+
+```ruby
+# tmp/test.jfactory
+json.member :id, test_object.id
+json.member :name, test_object.name
+``` 
+
+```ruby
+# test data
+test_object = OpenStruct.new(id: '1', name: 'TestObject1')
+
+puts JSONFactory.build('tmp/test.jfactory', object: test_object).build # => { "id": 1, name: "TestObject1" }
+```   
 
 ## Development
 
