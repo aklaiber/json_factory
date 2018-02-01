@@ -2,7 +2,7 @@
 
 # JsonFactory
 
-JsonFactory is a Easy DSL to create JSON structures with the development focus on performance. 
+JsonFactory is a Easy DSL to create JSON with focus on performance and flexibility. 
 
 ## Installation
 
