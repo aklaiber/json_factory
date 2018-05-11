@@ -475,4 +475,46 @@ describe JSONFactory::DSL do
       expect(result).to eql('{"data":{"id":"1","test_object":{"test":"test","id":"1"},"test_array":[{"id":"01"},{"id":"02"}]}}')
     end
   end
+
+  describe 'extend dsl' do
+    let(:extension) do
+      Module.new do
+        def test_it
+          value('test value')
+        end
+      end
+    end
+
+    before do
+      JSONFactory.configure do |config|
+        config.extend_dsl(extension)
+      end
+    end
+
+    let(:template) { 'json.test_it' }
+
+    it 'generates a single value' do
+      expect(JSONFactory.build('json.test_it')).to eq('"test value"')
+    end
+  end
+
+  describe 'add helper' do
+    let(:helper) do
+      Module.new do
+        def test
+          'test value'
+        end
+      end
+    end
+
+    before do
+      JSONFactory.configure do |config|
+        config.include_helper(helper)
+      end
+    end
+
+    it 'generates a single value with helper return value' do
+      expect(JSONFactory.build('json.value test')).to eq('"test value"')
+    end
+  end
 end
