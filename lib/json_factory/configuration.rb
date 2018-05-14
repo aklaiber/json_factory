@@ -15,5 +15,9 @@ module JSONFactory
     def include_helper(mod)
       @helpers.push(mod)
     end
+
+    def extend_dsl(mod)
+      JSONFactory::DSL.include(mod)
+    end
   end
 end

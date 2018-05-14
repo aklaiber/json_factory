@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative 'dsl/object_array'
+require_relative 'dsl/object_if'
+
 module JSONFactory
   class DSL
     def self.check_arity(argc, expected)
