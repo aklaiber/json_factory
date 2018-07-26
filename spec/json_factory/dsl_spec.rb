@@ -327,6 +327,36 @@ describe JSONFactory::DSL do
     it 'generates an object literal' do
       expect(result).to eql('{"foo":{"name":"name"},"foo":{"id":"123","name":"name"}}')
     end
+
+    # Not sure if this should be possible
+    context 'when key is nil' do
+      let(:template) do
+        <<~RUBY
+        json.object do
+          json.member :foo do
+            json.object do
+              json.cache nil do
+                json.member :name, 'name'
+              end
+            end
+          end
+
+          json.member :foo do
+            json.object do
+              json.member :id, '123'
+              json.cache nil do
+                # this will be replaced by the cached value above
+              end
+            end
+          end
+        end
+        RUBY
+      end
+
+      it 'generates an object literal' do
+        expect(result).to eql('{"foo":{"name":"name"},"foo":{"id":"123","name":"name"}}')
+      end
+    end
   end
 
   describe '#partial' do
