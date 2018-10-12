@@ -5,7 +5,8 @@ require 'spec_helper'
 describe JSONFactory::JSONBuilder do
   describe '#jfactory' do
     subject(:builder) { JSONFactory::JSONBuilder.new(nil) }
-    let(:jfactory) { builder.send(:jfactory) }
+    let(:dsl) { JSONFactory::DSL.new(subject) }
+    let(:jfactory) { builder.send(:jfactory, dsl) }
 
     it 'returns a binding' do
       expect(jfactory).to be_a(Binding)
@@ -19,8 +20,8 @@ describe JSONFactory::JSONBuilder do
       expect(eval('Module.nesting', jfactory, __FILE__, __LINE__)).to be_empty
     end
 
-    it 'does not contain local variables' do
-      expect(eval('local_variables', jfactory, __FILE__, __LINE__)).to be_empty
+    it 'does not contain local variables except for __dsl__' do
+      expect(eval('local_variables', jfactory, __FILE__, __LINE__)).to eq([:__dsl__])
     end
 
     describe '#to_s' do
@@ -36,8 +37,8 @@ describe JSONFactory::JSONBuilder do
     end
 
     describe 'variable scope' do
-      let(:a) { builder.send(:jfactory) }
-      let(:b) { builder.send(:jfactory) }
+      let(:a) { builder.send(:jfactory, dsl) }
+      let(:b) { builder.send(:jfactory, dsl) }
 
       it 'returns a new instance every time' do
         expect(a).not_to equal(b)

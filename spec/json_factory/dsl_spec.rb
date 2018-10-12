@@ -12,21 +12,21 @@ describe JSONFactory::DSL do
 
   describe '#value' do
     context 'with a numeric argument' do
-      let(:template) { 'json.value 1' }
+      let(:template) { 'value 1' }
       it 'generates a single value' do
         expect(result).to eq('1')
       end
     end
 
     context 'with nil argument' do
-      let(:template) { 'json.value nil' }
+      let(:template) { 'value nil' }
       it 'generates a null value' do
         expect(result).to eq('null')
       end
     end
 
     context 'with block argument' do
-      let(:template) { 'json.value 1 {}' }
+      let(:template) { 'value 1 {}' }
       it 'uses the given value' do
         silence_warnings do
           expect(result).to eq('1')
@@ -39,14 +39,14 @@ describe JSONFactory::DSL do
 
     describe 'argument errors' do
       context 'without arguments' do
-        let(:template) { 'json.value' }
+        let(:template) { 'value' }
         it 'raises an error' do
           expect { result }.to raise_error ArgumentError, 'wrong number of arguments (given 0, expected 1)'
         end
       end
 
       context 'with too many arguments' do
-        let(:template) { 'json.value 1, 2' }
+        let(:template) { 'value 1, 2' }
         it 'raises an error' do
           expect { result }.to raise_error ArgumentError, 'wrong number of arguments (given 2, expected 1)'
         end
@@ -55,14 +55,14 @@ describe JSONFactory::DSL do
 
     describe 'state errors' do
       context 'value within object' do
-        let(:template) { 'json.object { json.value 1 }' }
+        let(:template) { 'object { value 1 }' }
         it 'raises an error' do
           expect { result }.to raise_error JSONFactory::TypeNotAllowedError, 'Can only add value as a value'
         end
       end
 
       context 'value within array' do
-        let(:template) { 'json.array { json.value 1 }' }
+        let(:template) { 'array { value 1 }' }
         it 'raises an error' do
           expect { result }.to raise_error JSONFactory::TypeNotAllowedError, 'Can only add value as a value'
         end
@@ -72,14 +72,14 @@ describe JSONFactory::DSL do
 
   describe '#array' do
     context 'empty array' do
-      let(:template) { 'json.array' }
+      let(:template) { 'array' }
       it 'generates an empty array literal' do
         expect(result).to eq('[]')
       end
     end
 
     context 'empty array with block' do
-      let(:template) { 'json.array {}' }
+      let(:template) { 'array {}' }
       it 'generates an empty array literal' do
         expect(result).to eq('[]')
       end
@@ -87,7 +87,7 @@ describe JSONFactory::DSL do
 
     describe 'argument errors' do
       context 'with argument' do
-        let(:template) { 'json.array 1' }
+        let(:template) { 'array 1' }
         it 'raises an error' do
           expect { result }.to raise_error ArgumentError, 'wrong number of arguments (given 1, expected 0)'
         end
@@ -96,14 +96,14 @@ describe JSONFactory::DSL do
 
     describe 'state errors' do
       context 'array within array' do
-        let(:template) { 'json.array { json.array }' }
+        let(:template) { 'array { array }' }
         it 'raises an error' do
           expect { result }.to raise_error JSONFactory::TypeNotAllowedError, 'Can only add array as a value'
         end
       end
 
       context 'array within object' do
-        let(:template) { 'json.object { json.array }' }
+        let(:template) { 'object { array }' }
         it 'raises an error' do
           expect { result }.to raise_error JSONFactory::TypeNotAllowedError, 'Can only add array as a value'
         end
@@ -113,35 +113,35 @@ describe JSONFactory::DSL do
 
   describe '#element' do
     context 'array with single element' do
-      let(:template) { 'json.array { json.element 1 }' }
+      let(:template) { 'array { element 1 }' }
       it 'generates an array literal containing the element' do
         expect(result).to eq('[1]')
       end
     end
 
     context 'array with two elements' do
-      let(:template) { 'json.array { json.element 1 ; json.element 2 }' }
+      let(:template) { 'array { element 1 ; element 2 }' }
       it 'generates an array literal containing the elements separated by comma' do
         expect(result).to eq('[1,2]')
       end
     end
 
     context 'with block value' do
-      let(:template) { 'json.array { json.element { json.value 1 } }' }
+      let(:template) { 'array { element { value 1 } }' }
       it 'generates an array literal containing the element' do
         expect(result).to eq('[1]')
       end
     end
 
     context 'with empty block' do
-      let(:template) { 'json.array { json.element {} }' }
+      let(:template) { 'array { element {} }' }
       it 'raises an error' do
         expect { result }.to raise_error JSONFactory::EmptyValueError
       end
     end
 
     context 'with positional and block argument' do
-      let(:template) { 'json.array { json.element 1 { json.value 2 } }' }
+      let(:template) { 'array { element 1 { value 2 } }' }
       it 'evaluates the block' do
         silence_warnings do
           expect(result).to eq('[2]')
@@ -154,14 +154,14 @@ describe JSONFactory::DSL do
 
     describe 'argument errors' do
       context 'without arguments' do
-        let(:template) { 'json.array { json.element }' }
+        let(:template) { 'array { element }' }
         it 'raises an error' do
           expect { result }.to raise_error ArgumentError, 'wrong number of arguments (given 0, expected 1)'
         end
       end
 
       context 'with too many arguments' do
-        let(:template) { 'json.array { json.element 1, 2 }' }
+        let(:template) { 'array { element 1, 2 }' }
         it 'raises an error' do
           expect { result }.to raise_error ArgumentError, 'wrong number of arguments (given 2, expected 1)'
         end
@@ -170,14 +170,14 @@ describe JSONFactory::DSL do
 
     describe 'state errors' do
       context 'top level element' do
-        let(:template) { 'json.element 1' }
+        let(:template) { 'element 1' }
         it 'raises an error' do
           expect { result }.to raise_error JSONFactory::TypeNotAllowedError, 'Can only add an element within an array'
         end
       end
 
       context 'element within object' do
-        let(:template) { 'json.object { json.element 1 }' }
+        let(:template) { 'object { element 1 }' }
         it 'raises an error' do
           expect { result }.to raise_error JSONFactory::TypeNotAllowedError, 'Can only add an element within an array'
         end
@@ -187,14 +187,14 @@ describe JSONFactory::DSL do
 
   describe '#object' do
     context 'empty object' do
-      let(:template) { 'json.object' }
+      let(:template) { 'object' }
       it 'generates an empty object literal' do
         expect(result).to eq('{}')
       end
     end
 
     context 'empty object with block' do
-      let(:template) { 'json.object {}' }
+      let(:template) { 'object {}' }
       it 'generates an empty object literal' do
         expect(result).to eq('{}')
       end
@@ -202,7 +202,7 @@ describe JSONFactory::DSL do
 
     describe 'argument errors' do
       context 'with argument' do
-        let(:template) { 'json.object 1' }
+        let(:template) { 'object 1' }
         it 'raises an error' do
           expect { result }.to raise_error ArgumentError, 'wrong number of arguments (given 1, expected 0)'
         end
@@ -211,14 +211,14 @@ describe JSONFactory::DSL do
 
     describe 'state errors' do
       context 'object within object' do
-        let(:template) { 'json.object { json.object }' }
+        let(:template) { 'object { object }' }
         it 'raises an error' do
           expect { result }.to raise_error JSONFactory::TypeNotAllowedError, 'Can only add object as a value'
         end
       end
 
       context 'object within array' do
-        let(:template) { 'json.array { json.object }' }
+        let(:template) { 'array { object }' }
         it 'raises an error' do
           expect { result }.to raise_error JSONFactory::TypeNotAllowedError, 'Can only add object as a value'
         end
@@ -228,35 +228,35 @@ describe JSONFactory::DSL do
 
   describe '#member' do
     context 'object with single member' do
-      let(:template) { 'json.object { json.member :foo, 1 }' }
+      let(:template) { 'object { member :foo, 1 }' }
       it 'generates an object literal containing the member' do
         expect(result).to eq('{"foo":1}')
       end
     end
 
     context 'object with two members' do
-      let(:template) { 'json.object { json.member :foo, 1 ; json.member :bar, 2 }' }
+      let(:template) { 'object { member :foo, 1 ; member :bar, 2 }' }
       it 'generates an object literal containing the members separated by comma' do
         expect(result).to eq('{"foo":1,"bar":2}')
       end
     end
 
     context 'with block value' do
-      let(:template) { 'json.object { json.member :foo { json.value 1 } }' }
+      let(:template) { 'object { member :foo { value 1 } }' }
       it 'generates an array literal containing the member' do
         expect(result).to eq('{"foo":1}')
       end
     end
 
     context 'with empty block' do
-      let(:template) { 'json.object { json.member :foo {} }' }
+      let(:template) { 'object { member :foo {} }' }
       it 'raises an error' do
         expect { result }.to raise_error JSONFactory::EmptyValueError
       end
     end
 
     context 'with positional and block argument' do
-      let(:template) { 'json.object { json.member :foo, 1 { json.value 2 } }' }
+      let(:template) { 'object { member :foo, 1 { value 2 } }' }
       it 'evaluates the block' do
         silence_warnings do
           expect(result).to eq('{"foo":2}')
@@ -269,14 +269,14 @@ describe JSONFactory::DSL do
 
     describe 'argument errors' do
       context 'without value argument' do
-        let(:template) { 'json.object { json.member :foo }' }
+        let(:template) { 'object { member :foo }' }
         it 'raises an error' do
           expect { result }.to raise_error ArgumentError, 'wrong number of arguments (given 1, expected 2)'
         end
       end
 
       context 'with too many arguments' do
-        let(:template) { 'json.object { json.member :foo, 1, 2 }' }
+        let(:template) { 'object { member :foo, 1, 2 }' }
         it 'raises an error' do
           expect { result }.to raise_error ArgumentError, 'wrong number of arguments (given 3, expected 2)'
         end
@@ -285,14 +285,14 @@ describe JSONFactory::DSL do
 
     describe 'state errors' do
       context 'top level member' do
-        let(:template) { 'json.member :foo, 1' }
+        let(:template) { 'member :foo, 1' }
         it 'raises an error' do
           expect { result }.to raise_error JSONFactory::TypeNotAllowedError, 'Can only add a member within an object'
         end
       end
 
       context 'member within array' do
-        let(:template) { 'json.array { json.member :foo, 1 }' }
+        let(:template) { 'array { member :foo, 1 }' }
         it 'raises an error' do
           expect { result }.to raise_error JSONFactory::TypeNotAllowedError, 'Can only add a member within an object'
         end
@@ -303,19 +303,19 @@ describe JSONFactory::DSL do
   describe '#cache' do
     let(:template) do
       <<~RUBY
-        json.object do
-          json.member :foo do
-            json.object do
-              json.cache 'test-cache-key' do
-                json.member :name, 'name'
+        object do
+          member :foo do
+            object do
+              cache 'test-cache-key' do
+                member :name, 'name'
               end
             end
           end
 
-          json.member :foo do
-            json.object do
-              json.member :id, '123'
-              json.cache 'test-cache-key' do
+          member :foo do
+            object do
+              member :id, '123'
+              cache 'test-cache-key' do
                 # this will be replaced by the cached value above
               end
             end
@@ -332,19 +332,19 @@ describe JSONFactory::DSL do
     context 'when key is nil' do
       let(:template) do
         <<~RUBY
-        json.object do
-          json.member :foo do
-            json.object do
-              json.cache nil do
-                json.member :name, 'name'
+        object do
+          member :foo do
+            object do
+              cache nil do
+                member :name, 'name'
               end
             end
           end
 
-          json.member :foo do
-            json.object do
-              json.member :id, '123'
-              json.cache nil do
+          member :foo do
+            object do
+              member :id, '123'
+              cache nil do
                 # this will be replaced by the cached value above
               end
             end
@@ -368,22 +368,22 @@ describe JSONFactory::DSL do
 
     let(:partial) do
       <<-RUBY
-        json.member :id, 'id 1'
+        member :id, 'id 1'
       RUBY
     end
 
     let(:template) do
       <<-RUBY
-        json.array do
-          json.element do
-            json.object do
-              json.partial '#{partial_file_path}'
+        array do
+          element do
+            object do
+              partial '#{partial_file_path}'
             end
           end
-          json.element do
-            json.object do
-              json.member :name, 'name'
-              json.partial '#{partial_file_path}'
+          element do
+            object do
+              member :name, 'name'
+              partial '#{partial_file_path}'
             end
           end
         end
@@ -399,10 +399,10 @@ describe JSONFactory::DSL do
     context 'when condition is true' do
       let(:template) do
         <<~RUBY
-          json.object do 
-            json.member :foo do 
-              json.object_if(true) do 
-                json.member :bar, 1 
+          object do 
+            member :foo do 
+              object_if(true) do 
+                member :bar, 1 
               end 
             end 
           end
@@ -417,10 +417,10 @@ describe JSONFactory::DSL do
     context 'when condition is false' do
       let(:template) do
         <<~RUBY
-          json.object do 
-            json.member :foo do 
-              json.object_if(false) do 
-                json.member :bar, 1 
+          object do 
+            member :foo do 
+              object_if(false) do 
+                member :bar, 1 
               end 
             end 
           end
@@ -436,8 +436,8 @@ describe JSONFactory::DSL do
   describe '#object_array' do
     let(:template) do
       <<~RUBY
-        json.object_array(objects) do |test_object|
-          json.member :id, test_object.id
+        object_array(objects) do |test_object|
+          member :id, test_object.id
         end
       RUBY
     end
@@ -461,34 +461,34 @@ describe JSONFactory::DSL do
 
     let(:partial_1) do
       <<-RUBY
-        json.member :id, test_object.id
+        member :id, test_object.id
       RUBY
     end
 
     let(:partial_2) do
       <<-RUBY
-        json.object do
-          json.member :id, nil
+        object do
+          member :id, nil
         end
       RUBY
     end
 
     let(:template) do
       <<-RUBY
-        json.object do
-          json.member :data do
-            json.object do
-              json.member :id, object.id
-              json. member :test_object do
-                json.object do
-                  json.member :test, "test"
-                  json.partial '#{partial_1_file_path}', test_object: object
+        object do
+          member :data do
+            object do
+              member :id, object.id
+               member :test_object do
+                object do
+                  member :test, "test"
+                  partial '#{partial_1_file_path}', test_object: object
                 end
               end
 
-              json.member :test_array do
-                json.object_array(object.test_objects) do |test_object|
-                  json.member :id, test_object.id
+              member :test_array do
+                object_array(object.test_objects) do |test_object|
+                  member :id, test_object.id
                 end
               end
             end
@@ -521,10 +521,10 @@ describe JSONFactory::DSL do
       end
     end
 
-    let(:template) { 'json.test_it' }
+    let(:template) { 'test_it' }
 
     it 'generates a single value' do
-      expect(JSONFactory.build('json.test_it')).to eq('"test value"')
+      expect(JSONFactory.build('test_it')).to eq('"test value"')
     end
   end
 
@@ -544,7 +544,7 @@ describe JSONFactory::DSL do
     end
 
     it 'generates a single value with helper return value' do
-      expect(JSONFactory.build('json.value test')).to eq('"test value"')
+      expect(JSONFactory.build('value test')).to eq('"test value"')
     end
   end
 end

@@ -84,11 +84,12 @@ module JSONFactory
     end
 
     def evaluate(string, local_variables, filename)
-      binding = jfactory
+      dsl = DSL.new(self)
+      binding = jfactory(dsl)
       local_variables.each_pair do |key, value|
         binding.local_variable_set(key, value)
       end
-      binding.local_variable_set(BUILDER_VARIABLE_NAME, DSL.new(self))
+      binding.local_variable_set(BUILDER_VARIABLE_NAME, dsl)
       eval(string, binding, filename.to_s) # rubocop:disable Security/Eval
     end
 
@@ -145,7 +146,7 @@ end
 
 JSONFactory::JSONBuilder.class_eval do
   # Returns an empty evaluation context, similar to Ruby's main object.
-  def jfactory
+  def jfactory(__dsl__)
     Object.allocate.instance_eval do
       class << self
         JSONFactory.configure.helpers.each { |mod| include mod }
@@ -155,6 +156,19 @@ JSONFactory::JSONBuilder.class_eval do
         end
         alias inspect to_s
       end
+
+      define_singleton_method(:__dsl__) do
+        __dsl__
+      end
+
+      def method_missing(method_name, *args, &block)
+        if __dsl__.respond_to?(method_name)
+          __dsl__.send(method_name, *args, &block)
+        else
+          super
+        end
+      end
+      
       return binding
     end
   end
