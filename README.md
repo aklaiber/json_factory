@@ -38,7 +38,7 @@ Or install it yourself as:
 
 ```ruby
 factory = <<-RUBY
-  json.value nil
+  value nil
 RUBY
 
 puts JSONFactory.build(factory) # => null
@@ -48,10 +48,10 @@ puts JSONFactory.build(factory) # => null
 
 ```ruby
 factory = <<-RUBY
-  json.object do
-    json.member :data do
-      json.object do
-        json.member :id, object.id
+  object do
+    member :data do
+      object do
+        member :id, object.id
       end
     end 
   end
@@ -67,8 +67,8 @@ puts JSONFactory.build(factory, object: test_object) # => {"data":{"id":1}}
 
 ```ruby
 factory = <<-RUBY
-  json.object do 
-    json.member :foo, 'bar' 
+  object do 
+    member :foo, 'bar' 
   end
 RUBY
 
@@ -79,9 +79,9 @@ puts JSONFactory.build(factory) # => {"foo":"bar"}
 
 ```ruby
 factory = <<-RUBY
-  json.array
+  array
     objects.each do |test_object|   
-      json.element :id, test_object.id
+      element :id, test_object.id
     end
   end
 RUBY
@@ -97,8 +97,8 @@ puts JSONFactory.build(factory, objects: [test_object_1, test_object_2]) # => [{
 
 ```ruby
 factory = <<-RUBY
-  json.object_array objects  do |test_object|
-    json.member :id, test_object.id
+  object_array objects do |test_object|
+    member :id, test_object.id
   end
 RUBY
 
@@ -113,9 +113,9 @@ puts JSONFactory.build(factory, objects: [test_object_1, test_object_2]) # => [{
 
 ```ruby
 factory = <<-RUBY
-  json.array
+  array
     objects.each do |test_object|   
-      json.element :id, test_object.id
+      element :id, test_object.id
     end
   end
 RUBY
@@ -131,14 +131,14 @@ puts JSONFactory.build(factory, objects: [test_object_1, test_object_2]) # => [{
 
 ```ruby
 # tmp/_test_partial.jfactory
-json.member :id, test_object.id
-json.member :name, test_object.name
+member :id, test_object.id
+member :name, test_object.name
 ```  
 
 ```ruby
 # tmp/test.jfactory
-json.object do
-  json.partial 'tmp/test_partial', test_object: object
+object do
+  partial 'tmp/test_partial', test_object: object
 end
 ``` 
 
@@ -153,12 +153,12 @@ puts JSONFactory.build('tmp/test.jfactory', object: test_object).build # => { "i
 
 ```ruby
 factory = <<-RUBY
-  json.object do
-    json.member :data do
-      json.object do
-        json.cache 'test-cache-key' do
-          json.member :id, object.id
-          json.member :name, object.name
+  object do
+    member :data do
+      object do
+        cache 'test-cache-key' do
+          member :id, object.id
+          member :name, object.name
         end
       end
     end
@@ -178,10 +178,10 @@ puts JSONFactory.build(factory, object: test_object) # => { "data": { "id": "1",
 
 ```ruby
 factory = <<-RUBY
-  json.object do
-    json.member :data do
-      json.object_if true do
-        json.member :foo, 'bar'
+  object do
+    member :data do
+      object_if true do
+        member :foo, 'bar'
       end
     end 
   end
@@ -191,10 +191,10 @@ puts JSONFactory.build(factory) # => { "data": { "foo": "bar" } }
 ```
 ```ruby
 factory = <<-RUBY
-  json.object do
-    json.member :data do
-      json.object_if false do
-        json.member :foo, 'bar'
+  object do
+    member :data do
+      object_if false do
+        member :foo, 'bar'
       end
     end 
   end
@@ -207,8 +207,8 @@ puts JSONFactory.build(factory) # => { "data": null }
 
 ```ruby
 # tmp/test.jfactory
-json.member :id, test_object.id
-json.member :name, test_object.name
+member :id, test_object.id
+member :name, test_object.name
 ``` 
 
 ```ruby
