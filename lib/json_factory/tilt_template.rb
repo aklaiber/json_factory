@@ -25,7 +25,6 @@ module JSONFactory
       #
       # method = compiled_method(locals_keys)
       # method.bind(scope).call(locals, &block)
-      byebug
       JSONFactory.build(data, locals)
     end
   end
