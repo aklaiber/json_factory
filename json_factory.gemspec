@@ -2,7 +2,7 @@
 
 lib = File.expand_path('../lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'json_factory/version'
+require_relative 'lib/json_factory/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'json_factory'
