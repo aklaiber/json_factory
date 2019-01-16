@@ -10,6 +10,7 @@ module JSONFactory
 
     def self.json_value(object)
       raise "don't know how to convert #{object.inspect} (#{object.class})" unless object.respond_to?(:to_json)
+
       object.to_json
     end
   end

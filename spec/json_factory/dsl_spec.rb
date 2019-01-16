@@ -332,24 +332,24 @@ describe JSONFactory::DSL do
     context 'when key is nil' do
       let(:template) do
         <<~RUBY
-        object do
-          member :foo do
-            object do
-              cache nil do
-                member :name, 'name'
+          object do
+            member :foo do
+              object do
+                cache nil do
+                  member :name, 'name'
+                end
               end
             end
-          end
 
-          member :foo do
-            object do
-              member :id, '123'
-              cache nil do
-                # this will be replaced by the cached value above
+            member :foo do
+              object do
+                member :id, '123'
+                cache nil do
+                  # this will be replaced by the cached value above
+                end
               end
             end
           end
-        end
         RUBY
       end
 
@@ -399,12 +399,12 @@ describe JSONFactory::DSL do
     context 'when condition is true' do
       let(:template) do
         <<~RUBY
-          object do 
-            member :foo do 
-              object_if(true) do 
-                member :bar, 1 
-              end 
-            end 
+          object do
+            member :foo do
+              object_if(true) do
+                member :bar, 1
+              end
+            end
           end
         RUBY
       end
@@ -417,12 +417,12 @@ describe JSONFactory::DSL do
     context 'when condition is false' do
       let(:template) do
         <<~RUBY
-          object do 
-            member :foo do 
-              object_if(false) do 
-                member :bar, 1 
-              end 
-            end 
+          object do
+            member :foo do
+              object_if(false) do
+                member :bar, 1
+              end
+            end
           end
         RUBY
       end

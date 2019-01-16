@@ -25,6 +25,7 @@ module JSONFactory
     def read_template(path)
       raise "file format is invalid. #{path}" unless File.extname(path).eql?('.jfactory')
       raise "jfactory file #{path} not found" unless File.exist?(path)
+
       File.read(path)
     end
   end

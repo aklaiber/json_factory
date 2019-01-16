@@ -11,7 +11,7 @@ module JSONFactory
     TOKEN_COLON = ':'
     TOKEN_COMMA = ','
 
-    def initialize(io, type = :value, execution_context=nil)
+    def initialize(io, type = :value, execution_context = nil)
       @stack = [State.new(io, type)]
       @cache = Cache.instance
       @template_store = TemplateStore.instance
@@ -21,6 +21,7 @@ module JSONFactory
     def value(value = nil)
       raise TypeNotAllowedError, 'Can only add value as a value' unless type == :value
       raise TypeNotAllowedError, 'Cannot add multiple values' unless count.zero?
+
       add_value(value)
       increment_count
     end
@@ -140,6 +141,7 @@ module JSONFactory
       @stack.push(State.new(io, type))
       yield
       raise EmptyValueError if type == :value && count.zero?
+
       @stack.pop
     end
   end
@@ -147,7 +149,8 @@ end
 
 JSONFactory::JSONBuilder.class_eval do
   # Returns an empty evaluation context, similar to Ruby's main object.
-  def jfactory(__dsl__, execution_context=nil)
+  # rubocop:disable Metrics/MethodLength, Lint/UnderscorePrefixedVariableName
+  def jfactory(__dsl__, execution_context = nil)
     execution_context ||= Object.allocate
 
     execution_context.instance_eval do
@@ -171,9 +174,11 @@ JSONFactory::JSONBuilder.class_eval do
           super
         end
       end
-      
+
       return binding
     end
   end
+  # rubocop:enable Metrics/MethodLength, Lint/UnderscorePrefixedVariableName
+
   private :jfactory
 end

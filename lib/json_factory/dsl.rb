@@ -7,6 +7,7 @@ module JSONFactory
   class DSL
     def self.check_arity(argc, expected)
       return if expected === argc # rubocop:disable Style/CaseEquality
+
       raise ArgumentError, "wrong number of arguments (given #{argc}, expected #{expected})"
     end
 

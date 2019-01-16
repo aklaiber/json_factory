@@ -4,13 +4,20 @@ AllCops:
 Style/Documentation:
   Enabled: false
 
-Style/MethodMissing:
+Style/AccessModifierDeclarations:
   Exclude:
     - lib/json_factory/json_builder.rb
 
 Style/ClassVars:
   Exclude:
     - lib/json_factory/json_builder.rb
+
+Style/MissingRespondToMissing:
+  Exclude:
+    - lib/json_factory/json_builder.rb
+
+Style/SymbolArray:
+  Enabled: false
 
 Metrics/ClassLength:
   Max: 150
