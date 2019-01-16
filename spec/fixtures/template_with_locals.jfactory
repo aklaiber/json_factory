@@ -1,4 +1,4 @@
-json.array do
-  json.element :hello_variable
-  json.element :world_variable
+array do
+  element hello_variable
+  element world_variable
 end
