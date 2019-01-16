@@ -19,8 +19,8 @@ module JSONFactory
   autoload :Cache, 'json_factory/cache'
   autoload :TemplateStore, 'json_factory/template_store.rb'
 
-  def self.build(template, local_variables = {})
-    Builder.new(template, local_variables).build
+  def self.build(template, local_variables = {}, execution_context=nil)
+    Builder.new(template, local_variables).build(execution_context)
   end
 
   def self.configure

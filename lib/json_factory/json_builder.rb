@@ -11,10 +11,11 @@ module JSONFactory
     TOKEN_COLON = ':'
     TOKEN_COMMA = ','
 
-    def initialize(io, type = :value)
+    def initialize(io, type = :value, execution_context=nil)
       @stack = [State.new(io, type)]
       @cache = Cache.instance
       @template_store = TemplateStore.instance
+      @execution_context = execution_context
     end
 
     def value(value = nil)
@@ -85,7 +86,7 @@ module JSONFactory
 
     def evaluate(string, local_variables, filename)
       dsl = DSL.new(self)
-      binding = jfactory(dsl)
+      binding = jfactory(dsl, @execution_context)
       local_variables.each_pair do |key, value|
         binding.local_variable_set(key, value)
       end
@@ -146,8 +147,10 @@ end
 
 JSONFactory::JSONBuilder.class_eval do
   # Returns an empty evaluation context, similar to Ruby's main object.
-  def jfactory(__dsl__)
-    Object.allocate.instance_eval do
+  def jfactory(__dsl__, execution_context=nil)
+    execution_context ||= Object.allocate
+
+    execution_context.instance_eval do
       class << self
         JSONFactory.configure.helpers.each { |mod| include mod }
 

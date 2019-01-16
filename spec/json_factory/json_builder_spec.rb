@@ -20,8 +20,8 @@ describe JSONFactory::JSONBuilder do
       expect(eval('Module.nesting', jfactory, __FILE__, __LINE__)).to be_empty
     end
 
-    it 'does not contain local variables except for __dsl__' do
-      expect(eval('local_variables', jfactory, __FILE__, __LINE__)).to eq([:__dsl__])
+    it 'does not contain local variables except for __dsl__ and the execution context' do
+      expect(eval('local_variables', jfactory, __FILE__, __LINE__)).to eq([:__dsl__, :execution_context])
     end
 
     describe '#to_s' do

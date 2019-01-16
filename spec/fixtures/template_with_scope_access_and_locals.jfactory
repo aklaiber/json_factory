@@ -1,0 +1,4 @@
+object do
+  member :from_scope, @foo
+  member :hello, world_variable
+end

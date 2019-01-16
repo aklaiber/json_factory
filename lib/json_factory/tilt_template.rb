@@ -20,13 +20,13 @@ module JSONFactory
     end
 
     def evaluate(scope, locals, &block)
-      raise "Scope is not nil: #{scope.inspect}" if scope
+      # raise "Scope is not nil: #{scope.inspect}" if scope
       # locals_keys = locals.keys
       # locals_keys.sort!{|x, y| x.to_s <=> y.to_s}
       #
       # method = compiled_method(locals_keys)
       # method.bind(scope).call(locals, &block)
-      JSONFactory.build(data, locals)
+      JSONFactory.build(data, locals, scope)
     end
   end
 end

@@ -12,8 +12,8 @@ module JSONFactory
       @local_variables
     end
 
-    def build
-      json_builder = JSONBuilder.new(@io)
+    def build(execution_context=nil)
+      json_builder = JSONBuilder.new(@io, :value, execution_context)
       if File.exist?(@template)
         json_builder.render_template(@template, @local_variables)
       else

@@ -40,10 +40,34 @@ describe JSONFactory::TiltTemplate do
     let(:template) { Tilt.new(template_fixture_file) }
 
     context "with scope" do
-      it "should raise an exception" do
-        expect do
-          template.render(Object.new)
-        end.to raise_error(RuntimeError)
+      let(:scope) do
+        scope = Object.new
+        scope.instance_variable_set(:@foo, "bar")
+        scope
+      end
+
+      context "without locals" do
+        let(:template_fixture_file) { File.join(FIXTURES, 'template_with_scope_access.jfactory') }
+        let(:result) { template.render(scope) }
+
+        it "should render to the expected result" do
+          expect(result).to eq('"bar"')
+        end
+      end
+
+      context "with locals" do
+        let(:result) { template.render(scope, locals) }
+
+        let(:template_fixture_file) { File.join(FIXTURES, 'template_with_scope_access_and_locals.jfactory') }
+        let(:locals) do
+          { :hello_variable => "hello",
+            :world_variable => "world" }
+        end
+        let(:result) { template.render(scope, locals) }
+
+        it "should render the expected result" do
+          expect(result).to eq('{"from_scope":"bar","hello":"world"}')
+        end
       end
     end
 
