@@ -8,7 +8,7 @@ module JSONFactory
     end
 
     def render(scope=nil, locals={}, &block)
-      scope ||= Object.new
+      # scope ||= Object.new
       current_template = Thread.current[:tilt_current_template]
       Thread.current[:tilt_current_template] = self
       evaluate(scope, locals || {}, &block)
@@ -20,6 +20,7 @@ module JSONFactory
     end
 
     def evaluate(scope, locals, &block)
+      raise "Scope is not nil: #{scope.inspect}" if scope
       # locals_keys = locals.keys
       # locals_keys.sort!{|x, y| x.to_s <=> y.to_s}
       #

@@ -39,6 +39,14 @@ describe JSONFactory::TiltTemplate do
   describe "template rendering through JSONFactory::TiltTemplate" do
     let(:template) { Tilt.new(template_fixture_file) }
 
+    context "with scope" do
+      it "should raise an exception" do
+        expect do
+          template.render(Object.new)
+        end.to raise_error(RuntimeError)
+      end
+    end
+
     context "without scope" do
       context "without locals" do
         let(:result) { template.render }
@@ -62,28 +70,4 @@ describe JSONFactory::TiltTemplate do
       end
     end
   end
-
-  # describe '#build' do
-  #   context 'with a file' do
-  #     let(:template_file_path) { build_factory_file(template) }
-  #
-  #     after do
-  #       File.unlink(template_file_path)
-  #     end
-  #
-  #     subject { JSONFactory::Builder.new(template_file_path) }
-  #
-  #     it 'builds json' do
-  #       expect(subject.build).to eql('{"id":"test-id"}')
-  #     end
-  #   end
-  #
-  #   context 'with a string' do
-  #     subject { JSONFactory::Builder.new(template) }
-  #
-  #     it 'builds json' do
-  #       expect(subject.build).to eql('{"id":"test-id"}')
-  #     end
-  #   end
-  # end
 end
