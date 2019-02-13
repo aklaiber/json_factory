@@ -26,7 +26,7 @@ describe JSONFactory::DSL do
     end
 
     context 'with block argument' do
-      let(:template) { 'value 1 {}' }
+      let(:template) { 'value(1) {}' }
       it 'uses the given value' do
         silence_warnings do
           expect(result).to eq('1')
@@ -141,7 +141,7 @@ describe JSONFactory::DSL do
     end
 
     context 'with positional and block argument' do
-      let(:template) { 'array { element 1 { value 2 } }' }
+      let(:template) { 'array { element(1) { value 2 } }' }
       it 'evaluates the block' do
         silence_warnings do
           expect(result).to eq('[2]')
@@ -242,21 +242,21 @@ describe JSONFactory::DSL do
     end
 
     context 'with block value' do
-      let(:template) { 'object { member :foo { value 1 } }' }
+      let(:template) { 'object { member(:foo) { value 1 } }' }
       it 'generates an array literal containing the member' do
         expect(result).to eq('{"foo":1}')
       end
     end
 
     context 'with empty block' do
-      let(:template) { 'object { member :foo {} }' }
+      let(:template) { 'object { member(:foo) {} }' }
       it 'raises an error' do
         expect { result }.to raise_error JSONFactory::EmptyValueError
       end
     end
 
     context 'with positional and block argument' do
-      let(:template) { 'object { member :foo, 1 { value 2 } }' }
+      let(:template) { 'object { member(:foo, 1) { value 2 } }' }
       it 'evaluates the block' do
         silence_warnings do
           expect(result).to eq('{"foo":2}')
