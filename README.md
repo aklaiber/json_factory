@@ -79,7 +79,7 @@ puts JSONFactory.build(factory) # => {"foo":"bar"}
 
 ```ruby
 factory = <<-RUBY
-  array
+  array do
     objects.each do |test_object|   
       element :id, test_object.id
     end
@@ -113,7 +113,7 @@ puts JSONFactory.build(factory, objects: [test_object_1, test_object_2]) # => [{
 
 ```ruby
 factory = <<-RUBY
-  array
+  array do
     objects.each do |test_object|   
       element :id, test_object.id
     end
